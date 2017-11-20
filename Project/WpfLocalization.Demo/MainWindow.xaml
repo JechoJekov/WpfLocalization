@@ -1,0 +1,222 @@
+﻿<Window x:Class="WpfLocalization.Demo.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WpfLocalization.Demo"
+        xmlns:data="clr-namespace:WpfLocalization.Demo.Data"
+        xmlns:system="clr-namespace:System;assembly=mscorlib"
+        xmlns:thread="clr-namespace:System.Threading;assembly=mscorlib"
+        xmlns:culture="clr-namespace:System.Globalization;assembly=mscorlib"
+        xmlns:properties="clr-namespace:WpfLocalization.Demo.Properties"
+        xmlns:uc="clr-namespace:WpfLocalization.Demo.UserControls;assembly=WpfLocalization.Demo.UserControls"
+        xmlns:controls="clr-namespace:WpfLocalization.Demo.Controls;assembly=WpfLocalization.Demo.Controls"
+        WindowStartupLocation="CenterScreen"
+        SizeToContent="Height"
+        Loaded="Window_Loaded"
+        mc:Ignorable="d"
+        Title="WPF Localization Demo" Width="525">
+    <Window.Resources>
+        <data:User x:Key="UserData" FirstName="John" LastName="Smith" AccountBalance="1000000"/>
+        <!-- Styles -->
+        <Style TargetType="TextBlock">
+            <Style.Setters>
+                <Setter Property="VerticalAlignment" Value="Center"/>
+            </Style.Setters>
+        </Style>
+        <Style TargetType="Label">
+            <Style.Setters>
+                <Setter Property="VerticalAlignment" Value="Center"/>
+            </Style.Setters>
+        </Style>
+        <Style TargetType="TextBox">
+            <Style.Setters>
+                <Setter Property="VerticalAlignment" Value="Center"/>
+                <Setter Property="HorizontalAlignment" Value="Left"/>
+            </Style.Setters>
+        </Style>
+        <Style TargetType="ComboBox">
+            <Style.Setters>
+                <Setter Property="VerticalAlignment" Value="Center"/>
+                <Setter Property="HorizontalAlignment" Value="Left"/>
+            </Style.Setters>
+        </Style>
+        <Style TargetType="GroupBox">
+            <Style.Setters>
+            </Style.Setters>
+        </Style>
+    </Window.Resources>
+    <StackPanel Margin="10">
+        <GroupBox Header="Options">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="200"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Row="0" Grid.ColumnSpan="2" Text="This section contains test settings and is not localized." TextWrapping="Wrap" Padding="5" Background="#F0F0F0"/>
+                <TextBlock Grid.Row="3" Grid.ColumnSpan="2" Text="Please excuse any incorrect translations as I am fluent in English and Bulgarian only. Contact the Google Translate team for any translation errors :-)" TextWrapping="Wrap" Padding="5" Background="#F0F0F0"/>
+                <Label Grid.Row="1" Grid.Column="0" Content="UI Culture (affects resources)"/>
+                <Label Grid.Row="2" Grid.Column="0" Content="Culture (affects formatting)"/>
+                <ComboBox x:Name="comboBoxUICulture" Grid.Row="1" Grid.Column="1" IsReadOnly="True" Width="200" DisplayMemberPath="NativeName" SelectedValue="{Binding Path=GlobalUICulture, Source={x:Static LocalizationManager.Cultures}}">
+                    <CultureInfo Name="en-US"/>
+                    <CultureInfo Name="fr-FR"/>
+                    <CultureInfo Name="ru-Ru"/>
+                    <CultureInfo Name="bg-BG"/>
+                </ComboBox>
+                <ComboBox x:Name="comboBoxCulture" Grid.Row="2" Grid.Column="1" IsReadOnly="True" Width="200" DisplayMemberPath="NativeName" SelectedValue="{Binding Path=GlobalCulture, Source={x:Static LocalizationManager.Cultures}}">
+                    <CultureInfo Name="en-US"/>
+                    <CultureInfo Name="fr-FR"/>
+                    <CultureInfo Name="ru-Ru"/>
+                    <CultureInfo Name="bg-BG"/>
+                </ComboBox>
+            </Grid>
+        </GroupBox>
+        <TabControl Padding="5" MinHeight="200">
+            <TabItem Header="Basic examples">
+                <StackPanel>
+                    <GroupBox Header="{Loc Label_InputData}">
+                        <Grid DataContext="{StaticResource UserData}">
+                            <Grid.RowDefinitions>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="200"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Label Grid.Row="0" Grid.Column="0" Content="{Loc Label_Name}"/>
+                            <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal">
+                                <TextBox x:Name="textBoxUser_FirstName" Width="120" ToolTip="Please enter your first name." Text="{Binding FirstName}"/>
+                                <TextBox x:Name="textBoxUser_LastName" Width="120" ToolTip="Please enter your last name." Margin="10,0,0,0" Text="{Binding LastName}"/>
+                            </StackPanel>
+                            <Label Grid.Row="1" Grid.Column="0" Content="{Loc Label_AccountBalance}"/>
+                            <TextBox Grid.Row="1" Grid.Column="1" x:Name="textBoxUser_AccountBalance" Width="100" Text="{Binding AccountBalance}"/>
+                        </Grid>
+                    </GroupBox>
+                    <GroupBox Header="{Loc Label_Information}">
+                        <Grid DataContext="{StaticResource UserData}">
+                            <Grid.RowDefinitions>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="200"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Row="0" Grid.ColumnSpan="2" TextWrapping="Wrap" Padding="5" Background="#F0F0F0">
+                                <TextBlock.Text>
+                                    <Loc Key="Text_Welcome">
+                                        <Binding Path="FirstName"/>
+                                        <Binding Path="LastName"/>
+                                    </Loc>
+                                </TextBlock.Text>
+                            </TextBlock>
+                            <Label Grid.Row="1" Grid.Column="0" Content="{Loc Label_UICulture}"/>
+                            <Label Grid.Row="2" Grid.Column="0" Content="{Loc Label_Culture}"/>
+                            <Label Grid.Row="3" Grid.Column="0" Content="{Loc Label_Language}"/>
+                            <Label Grid.Row="4" Grid.Column="0" Content="{Loc Label_Currency}"/>
+                            <Label Grid.Row="5" Grid.Column="0" Content="{Loc Label_AccountBalanceInfo}"/>
+                            <Label Grid.Row="6" Grid.Column="0" Content="{Loc Label_Date}"/>
+
+                            <TextBlock Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Text="{Loc Binding={Binding Path=CurrentUICulture.Name, Source={x:Static thread:Thread.CurrentThread}}}"/>
+                            <TextBlock Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" Text="{Loc Binding={Binding Path=CurrentCulture.Name, Source={x:Static thread:Thread.CurrentThread}}}"/>
+                            <TextBlock Grid.Row="3" Grid.Column="1" VerticalAlignment="Center" Text="{Loc Binding={Binding Path=CurrentUICulture.NativeName, Source={x:Static thread:Thread.CurrentThread}}}"/>
+                            <TextBlock Grid.Row="4" Grid.Column="1" VerticalAlignment="Center" Text="{Loc Binding={Binding Path=CurrentCulture.NumberFormat.CurrencySymbol, Source={x:Static thread:Thread.CurrentThread}}}"/>
+                            <TextBlock Grid.Row="5" Grid.Column="1" VerticalAlignment="Center" Text="{Loc Text_AccountBalanceInfo, Binding={Binding Path=AccountBalance}}"/>
+                            <TextBlock Grid.Row="6" Grid.Column="1" VerticalAlignment="Center" Text="{Loc StringFormat='{}{0:d}', Binding={Binding Path=Today, Source={x:Static system:DateTime.Now}}}"/>
+                        </Grid>
+                    </GroupBox>
+                </StackPanel>
+            </TabItem>
+            <TabItem Header="Multiple resource files">
+                <StackPanel LocalizationScope.ResourceManager="{ResourceManager Type={x:Type properties:AltResources}}">
+                    <TextBlock TextWrapping="Wrap" Text="{Loc Text_Explanation}"/>
+                    <TextBlock TextWrapping="Wrap" Margin="0,10,0,0" LocalizationScope.ResourceManager="{ResourceManager AssemblyName='WpfLocalization.Demo', ResourceFile='WpfLocalization.Demo.Properties.Alt2Resources'}" Text="{Loc Text_Explanation}"/>
+                </StackPanel>
+            </TabItem>
+            <TabItem Header="Multiple languages" x:Name="tabItemMultipleLanguages">
+                <StackPanel>
+                    <TextBlock TextWrapping="Wrap" Text="{Loc Text_MultipleLanguages}"/>
+                    <Grid Margin="0,10,0,0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="200"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Label Grid.Row="1" Grid.Column="0" Content="{Loc Label_UICulture}"/>
+                        <Label Grid.Row="2" Grid.Column="0" Content="{Loc Label_Culture}"/>
+                        <Label Grid.Row="3" Grid.Column="0" Content="{Loc Label_Date}"/>
+
+                        <ComboBox x:Name="comboBoxMulti_UICulture" Grid.Row="1" Grid.Column="1" IsReadOnly="True" Width="200" SelectedValuePath="Tag" SelectedValue="{Binding Path=(LocalizationScope.UICulture), ElementName=tabItemMultipleLanguages}">
+                            <ComboBoxItem Content="Inherited"/>
+                            <ComboBoxItem Content="{Binding Path=NativeName, Source={CultureInfo en-US}}" Tag="{CultureInfo en-US}"/>
+                            <ComboBoxItem Content="{Binding Path=NativeName, Source={CultureInfo fr-FR}}" Tag="{CultureInfo fr-FR}"/>
+                            <ComboBoxItem Content="{Binding Path=NativeName, Source={CultureInfo ru-RU}}" Tag="{CultureInfo ru-RU}"/>
+                            <ComboBoxItem Content="{Binding Path=NativeName, Source={CultureInfo bg-BG}}" Tag="{CultureInfo bg-BG}"/>
+                        </ComboBox>
+                        <ComboBox x:Name="comboBoxMulti_Culture" Grid.Row="2" Grid.Column="1" IsReadOnly="True" Width="200" SelectedValuePath="Tag" SelectedValue="{Binding Path=(LocalizationScope.Culture), ElementName=tabItemMultipleLanguages}">
+                            <ComboBoxItem Content="Inherited"/>
+                            <ComboBoxItem Content="{Binding Path=NativeName, Source={CultureInfo en-US}}" Tag="{CultureInfo en-US}"/>
+                            <ComboBoxItem Content="{Binding Path=NativeName, Source={CultureInfo fr-FR}}" Tag="{CultureInfo fr-FR}"/>
+                            <ComboBoxItem Content="{Binding Path=NativeName, Source={CultureInfo ru-RU}}" Tag="{CultureInfo ru-RU}"/>
+                            <ComboBoxItem Content="{Binding Path=NativeName, Source={CultureInfo bg-BG}}" Tag="{CultureInfo bg-BG}"/>
+                        </ComboBox>
+                        <TextBlock Grid.Row="3" Grid.Column="1" VerticalAlignment="Center" Text="{Loc StringFormat='{}{0:d}', Binding={Binding Path=Today, Source={x:Static system:DateTime.Now}}}"/>
+                    </Grid>
+                </StackPanel>
+            </TabItem>
+            <TabItem Header="Various resources">
+                <Grid Margin="0,10,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="200"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Label Grid.Row="1" Grid.Column="0" Content="{Loc Label_Flag}"/>
+                    <Label Grid.Row="2" Grid.Column="0" Content="{Loc Label_Capital}"/>
+
+                    <Image Grid.Row="1" Grid.Column="1" Source="{Loc Icon_Flag}" Stretch="None" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{Loc Text_Capital}"/>
+                    <Image Grid.Row="3" Grid.Column="1" Source="{Loc Image_Capital}" Stretch="Uniform" Width="200" Height="150" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="User &amp; custom controls">
+                <StackPanel>
+                    <uc:InfoUserControl/>
+                    <controls:SampleCustomControl Margin="0,10,0,0" BorderBrush="Red" BorderThickness="1" Padding="5" DataContext="{StaticResource UserData}" FirstName="{Binding FirstName}" LastName="{Binding LastName}"/>
+                    <controls:NonDepCustomControl Margin="0,10,0,0" BorderBrush="Green" BorderThickness="1" Padding="5" Message="{Loc NonDepCustomControl_Message}"/>
+                </StackPanel>
+            </TabItem>
+            <TabItem Header="Multiple UI threads">
+
+            </TabItem>
+        </TabControl>
+    </StackPanel>
+</Window>

@@ -1,0 +1,55 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26730.12
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfLocalization", "WpfLocalization\WpfLocalization.csproj", "{22312509-0FD8-4903-98E6-0308A00BB15A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfLocalization.Demo", "WpfLocalization.Demo\WpfLocalization.Demo.csproj", "{190CD0B1-7008-45A3-ABB7-35A457F53CBB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfLocalization.Demo.Controls", "WpfLocalization.Demo.Controls\WpfLocalization.Demo.Controls.csproj", "{79E7CAB0-A278-4BBB-9DE1-600B87E8F10B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfLocalization.Demo.Windows", "WpfLocalization.Demo.Windows\WpfLocalization.Demo.Windows.csproj", "{5F60A385-BA78-4F47-82BE-00C068A26DB7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfLocalization.Demo.UserControls", "WpfLocalization.Demo.UserControls\WpfLocalization.Demo.UserControls.csproj", "{0F5FE02D-6F62-4CC2-A3BC-29D5735BB188}"
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "WpfLocalization.VBDemo", "WpfLocalization.VBDemo\WpfLocalization.VBDemo.vbproj", "{C69E8BFA-3BFB-4E9E-9283-E6808D540B58}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{22312509-0FD8-4903-98E6-0308A00BB15A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{22312509-0FD8-4903-98E6-0308A00BB15A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{22312509-0FD8-4903-98E6-0308A00BB15A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{22312509-0FD8-4903-98E6-0308A00BB15A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{190CD0B1-7008-45A3-ABB7-35A457F53CBB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{190CD0B1-7008-45A3-ABB7-35A457F53CBB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{190CD0B1-7008-45A3-ABB7-35A457F53CBB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{190CD0B1-7008-45A3-ABB7-35A457F53CBB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{79E7CAB0-A278-4BBB-9DE1-600B87E8F10B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{79E7CAB0-A278-4BBB-9DE1-600B87E8F10B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{79E7CAB0-A278-4BBB-9DE1-600B87E8F10B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{79E7CAB0-A278-4BBB-9DE1-600B87E8F10B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5F60A385-BA78-4F47-82BE-00C068A26DB7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5F60A385-BA78-4F47-82BE-00C068A26DB7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5F60A385-BA78-4F47-82BE-00C068A26DB7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5F60A385-BA78-4F47-82BE-00C068A26DB7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0F5FE02D-6F62-4CC2-A3BC-29D5735BB188}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0F5FE02D-6F62-4CC2-A3BC-29D5735BB188}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0F5FE02D-6F62-4CC2-A3BC-29D5735BB188}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0F5FE02D-6F62-4CC2-A3BC-29D5735BB188}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C69E8BFA-3BFB-4E9E-9283-E6808D540B58}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C69E8BFA-3BFB-4E9E-9283-E6808D540B58}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C69E8BFA-3BFB-4E9E-9283-E6808D540B58}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C69E8BFA-3BFB-4E9E-9283-E6808D540B58}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B128365B-2D88-4161-8425-E4FF0A6BD59A}
+	EndGlobalSection
+EndGlobal
