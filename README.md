@@ -13,18 +13,14 @@ CodeProject in 2009 - [Advanced WPF Localization](https://www.codeproject.com/Ar
 This section describes basic usage only.*
 
 1. Install the WpfLocaliation package from [NuGet](https://www.nuget.org/packages/WpfLocalization)
-2. Create a default resource file in your project
-  * Go to Solution Explorer - Project -> Properties -> Resources and create a new file
-  * OR [C#] Create `Resources.resx` file in the `Properties` project folder
-  * OR [VB.NET] Create `Resources.resx` file in the `My Project` project folder
-3. Use the `Loc` XAML extension in your application.
+2. Use the `Loc` XAML extension in your application.
 
 ```XAML
 <Window ...>
   ...
   <TextBlock Text="{Loc Text_HelloWorld}"/>
   ...
-  <-- Localize bindings -->
+  <!-- Localize bindings -->
   <TextBlock Text="{Loc Text_HelloUserName, Binding={Binding UserName}}"/>
   ...
   <!-- Localize multi-bindings -->
@@ -46,7 +42,7 @@ This section describes basic usage only.*
 </Window>
 ```
 
-4. Add localized values to the resource file.
+3. Add localized values to the default resource file created by Visual Studio (go to *Solution Explorer - Project -> Properties -> Resources* or open `Properties/Resources.resx` (C#), `My Project/Resources.resx` (VB.NET))
 
 Name | Value
 ---- | -----
@@ -57,7 +53,7 @@ Text_HelloPersonalName | Hello {0} {1}!
 Text_BirthDate | Your birth date is {0:d}.
 ... | ...
 
-5. Add culture-specific resource files (e.g. `Resources.de.resx`, `Resources.fr-FR.resx`) and localize the values
+4. Add culture-specific resource files (e.g. `Resources.de.resx`, `Resources.fr-FR.resx`) and localize the values
 
 *Resources.de.resx*
 
