@@ -13,7 +13,7 @@ CodeProject in 2009 - [Advanced WPF Localization](https://www.codeproject.com/Ar
 This section describes basic usage only.*
 
 1. Install the WpfLocaliation package from [NuGet](https://www.nuget.org/packages/WpfLocalization)
-2. Use the `Loc` XAML extension in your application.
+2. Use the `Loc` markup extension in your application.
 
 ```XAML
 <Window ...>
@@ -82,7 +82,8 @@ Text_BirthDate | Votre date de naissance est le {0:d}.
 
 *Please refer to the [Wiki](https://github.com/JechoJekov/WpfLocalization/wiki/) for a complete feature list and examples.*
 
-* Both dependency and non-dependency properties
+* Supports both dependency and non-dependency properties
+* Changing the culture automatically updates all localized properties
 * Any data type for which there is a `TypeConverter` (including images, icons, fonts, colors, enumerations, margins, etc.)
 * Bindings
 * Templates
