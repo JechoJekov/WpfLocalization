@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -11,9 +12,19 @@ using System.Windows;
 using System.Windows.Data;
 using System.Windows.Markup;
 using System.Windows.Threading;
+using System.Xaml;
 
 namespace WpfLocalization
 {
+    /// <summary>
+    /// Represents a method to be called to obtain a localized value.
+    /// </summary>
+    /// <param name="culture"></param>
+    /// <param name="uiCulture"></param>
+    /// <param name="parameter"></param>
+    /// <returns></returns>
+    public delegate object LocalizationCallback(CultureInfo culture, CultureInfo uiCulture, object parameter, object dataBindingValue);
+
     [ContentProperty("Bindings")]
     [MarkupExtensionReturnType(typeof(object))]
     public class LocExtension : MarkupExtension
@@ -27,6 +38,28 @@ namespace WpfLocalization
         /// The format string to use in conjunction with <see cref="Binding"/> or <see cref="Bindings"/>.
         /// </summary>
         public string StringFormat { get; set; }
+
+        #region Callback
+
+        /// <summary>
+        /// A method to call to obtain the value or transform a value returned by the data binding.
+        /// </summary>
+        /// <remarks>
+        /// CAUTION Specifying both a <see cref="Callback"/> and a <see cref="Converter"/> is not supported.
+        /// If such case the <see cref="Converter"/> is ignored.
+        /// </remarks>
+        public LocalizationCallback Callback { get; set; }
+
+        /// <summary>
+        /// The parameter to pass to the callback.
+        /// </summary>
+        /// <remarks>
+        /// CAUTION Specifying both a <see cref="Callback"/> and a <see cref="Converter"/> is not supported.
+        /// If such case the <see cref="Converter"/> is ignored.
+        /// </remarks>
+        public object CallbackParameter { get; set; }
+
+        #endregion
 
         #region Binding
 
@@ -61,11 +94,19 @@ namespace WpfLocalization
         /// <summary>
         /// The converter to use to convert the value before it is assigned to the property.
         /// </summary>
+        /// <remarks>
+        /// CAUTION Specifying both a <see cref="Callback"/> and a <see cref="Converter"/> is not supported.
+        /// If such case the <see cref="Converter"/> is ignored.
+        /// </remarks>
         public IValueConverter Converter { get; set; }
 
         /// <summary>
         /// The parameter to pass to the converter.
         /// </summary>
+        /// <remarks>
+        /// CAUTION Specifying both a <see cref="Callback"/> and a <see cref="Converter"/> is not supported.
+        /// If such case the <see cref="Converter"/> is ignored.
+        /// </remarks>
         public object ConverterParameter { get; set; }
 
         #endregion
@@ -79,6 +120,10 @@ namespace WpfLocalization
 
         public override object ProvideValue(IServiceProvider serviceProvider)
         {
+            // Other useful services:
+            // - IDestinationTypeProvider
+            // - IRootObjectProvider
+
             if (!(serviceProvider.GetService(typeof(IProvideValueTarget)) is IProvideValueTarget service))
             {
                 return null;
@@ -116,6 +161,8 @@ namespace WpfLocalization
                 {
                     Key = this.Key,
                     StringFormat = this.StringFormat,
+                    Callback = this.Callback,
+                    CallbackParameter = this.CallbackParameter,
                     Binding = this.Binding,
                     Bindings = this._bindings,
                     Converter = this.Converter,
@@ -144,6 +191,58 @@ namespace WpfLocalization
                 {
                     return localizedValue.GetValue(depObj);
                 }
+            }
+            else if (service.TargetObject is Setter)
+            {
+                if (Binding != null || _bindings?.Count > 0)
+                {
+                    throw new NotSupportedException("Bindings are not supported in style setters.");
+                }
+
+                var rootObjectProvider = (IRootObjectProvider)serviceProvider.GetService(typeof(IRootObjectProvider));
+
+                Debug.Assert(rootObjectProvider != null);
+
+                var rootObject = rootObjectProvider.RootObject as DependencyObject;
+
+                Debug.Assert(rootObject != null);
+
+                var destinationTypeProvider = (IDestinationTypeProvider)serviceProvider.GetService(typeof(IDestinationTypeProvider));
+
+#if DEPRECATED // Unfortunately "GetDestinationType" throws NullReferenceException therefore, this approach is not applicable for retrieving the property's type
+                Debug.Assert(destinationTypeProvider != null);
+
+                var targetPropertyType = destinationTypeProvider.GetDestinationType();
+
+                var localizedValue = new SetterLocalizedValue(rootObject, targetPropertyType)
+                {
+                    Key = this.Key,
+                    Callback = this.Callback,
+                    CallbackParameter = this.CallbackParameter,
+                    Converter = this.Converter,
+                    ConverterParameter = this.ConverterParameter,
+                };
+#endif
+
+                var localizedValue = new SetterLocalizedValue(rootObject)
+                {
+                    Key = this.Key,
+                    Callback = this.Callback,
+                    CallbackParameter = this.CallbackParameter,
+                    Converter = this.Converter,
+                    ConverterParameter = this.ConverterParameter,
+                };
+
+                var binding = new Binding(nameof(SetterLocalizedValue.Value))
+                {
+                    Source = localizedValue,
+                    Mode = BindingMode.OneWay,
+                    Converter = localizedValue,
+                };
+
+                LocalizationManager.Add(localizedValue);
+
+                return binding;
             }
             else if (service.TargetProperty is DependencyProperty || service.TargetProperty is PropertyInfo)
             {

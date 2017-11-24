@@ -124,11 +124,11 @@
   <data name="Image_Capital" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\RU.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="Label_AccountBalance" xml:space="preserve">
-    <value>Баланс</value>
+  <data name="Label_BirthDate" xml:space="preserve">
+    <value>Дата рождения</value>
   </data>
-  <data name="Label_AccountBalanceInfo" xml:space="preserve">
-    <value>У вам есть</value>
+  <data name="Label_BirthDateInfo" xml:space="preserve">
+    <value>Дата рождения</value>
   </data>
   <data name="Label_Capital" xml:space="preserve">
     <value>Столица</value>
@@ -160,14 +160,20 @@
   <data name="Label_Name" xml:space="preserve">
     <value>Имя</value>
   </data>
+  <data name="Label_Styles_EnterNumber" xml:space="preserve">
+    <value>Введите число</value>
+  </data>
   <data name="Label_UICulture" xml:space="preserve">
     <value>Текущая культура ПИ</value>
   </data>
   <data name="NonDepCustomControl_Message" xml:space="preserve">
     <value>Это локализованное свойство беззависимости.</value>
   </data>
-  <data name="Text_AccountBalanceInfo" xml:space="preserve">
-    <value>У вас есть {0:C0} в вашей учетной записи.</value>
+  <data name="Text_BirthDateInfo" xml:space="preserve">
+    <value>Вы рождены на {0: MMM dd}</value>
+  </data>
+  <data name="Text_BirthDateInfo_2" xml:space="preserve">
+    <value>До следующего дня рождения осталось {0} дней!</value>
   </data>
   <data name="Text_Capital" xml:space="preserve">
     <value>Москва</value>
@@ -177,6 +183,18 @@
   </data>
   <data name="Text_MultipleLanguages" xml:space="preserve">
     <value>Вы можете использовать атрибуты LocalizationScope.Culture и LocalizationScope.UICulture в любом месте приложения для установки языка и / pr для культуры форматирования элемента и его дочерних элементов. Используйте комбинированные поля ниже, чтобы изменить настройки только для содержимого этой вкладки.</value>
+  </data>
+  <data name="Text_Styles" xml:space="preserve">
+    <value>Вы можете использовать расширение в установках стиля, включая триггеры данных.</value>
+  </data>
+  <data name="Text_Styles_Number_Negative" xml:space="preserve">
+    <value>Вы ввели отрицательное число.</value>
+  </data>
+  <data name="Text_Styles_Number_Positive" xml:space="preserve">
+    <value>Вы ввели положительное число.</value>
+  </data>
+  <data name="Text_Styles_Number_Zero" xml:space="preserve">
+    <value>Вы ввели нуль.</value>
   </data>
   <data name="Text_Welcome" xml:space="preserve">
     <value>Привет {0} {1} и добро пожаловать в Москве. Ниже вы можете найти информацию об этой стране и стилях форматирования.</value>

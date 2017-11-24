@@ -124,11 +124,11 @@
   <data name="Image_Capital" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\BG.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="Label_AccountBalance" xml:space="preserve">
-    <value>Баланс</value>
+  <data name="Label_BirthDate" xml:space="preserve">
+    <value>Рождена дата</value>
   </data>
-  <data name="Label_AccountBalanceInfo" xml:space="preserve">
-    <value>Вие имате</value>
+  <data name="Label_BirthDateInfo" xml:space="preserve">
+    <value>Рождена дата</value>
   </data>
   <data name="Label_Capital" xml:space="preserve">
     <value>Столица</value>
@@ -160,14 +160,20 @@
   <data name="Label_Name" xml:space="preserve">
     <value>Име</value>
   </data>
+  <data name="Label_Styles_EnterNumber" xml:space="preserve">
+    <value>Въведете число</value>
+  </data>
   <data name="Label_UICulture" xml:space="preserve">
     <value>Текуща култура на ПИ</value>
   </data>
   <data name="NonDepCustomControl_Message" xml:space="preserve">
     <value>Това е локализирано non-dependency поле.</value>
   </data>
-  <data name="Text_AccountBalanceInfo" xml:space="preserve">
-    <value>Вие имате {0:C0} във вашия акаунт.</value>
+  <data name="Text_BirthDateInfo" xml:space="preserve">
+    <value>Вие сте роден на {0: MMM dd}</value>
+  </data>
+  <data name="Text_BirthDateInfo_2" xml:space="preserve">
+    <value>Остават {0} дни до следващия ви рожден ден!</value>
   </data>
   <data name="Text_Capital" xml:space="preserve">
     <value>София</value>
@@ -177,6 +183,18 @@
   </data>
   <data name="Text_MultipleLanguages" xml:space="preserve">
     <value>Прикачените полета LocalizationScope.Culture и LocalizationScope.UICulture могат да се използват където и да било в приложението, за да посочите езика или форматирането на елемент и всички негови деца. Използвайте контролите по-долу за да промените езика и/или форматирането само в този раздел.</value>
+  </data>
+  <data name="Text_Styles" xml:space="preserve">
+    <value>Можете да използвате разширението в style setters, включително и в data triggers.</value>
+  </data>
+  <data name="Text_Styles_Number_Negative" xml:space="preserve">
+    <value>Въвели сте отрицателно число.</value>
+  </data>
+  <data name="Text_Styles_Number_Positive" xml:space="preserve">
+    <value>Въвели сте положително число.</value>
+  </data>
+  <data name="Text_Styles_Number_Zero" xml:space="preserve">
+    <value>Въвели сте нула.</value>
   </data>
   <data name="Text_Welcome" xml:space="preserve">
     <value>Привет {0} {1} и добре дошли в София. По-долу можете да намерите информация за тази държава и стилове за форматиране.</value>

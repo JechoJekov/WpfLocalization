@@ -81,20 +81,20 @@ namespace WpfLocalization.Demo.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Account balance.
+        ///   Looks up a localized string similar to Birth date.
         /// </summary>
-        internal static string Label_AccountBalance {
+        internal static string Label_BirthDate {
             get {
-                return ResourceManager.GetString("Label_AccountBalance", resourceCulture);
+                return ResourceManager.GetString("Label_BirthDate", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to You have.
+        ///   Looks up a localized string similar to Birth date.
         /// </summary>
-        internal static string Label_AccountBalanceInfo {
+        internal static string Label_BirthDateInfo {
             get {
-                return ResourceManager.GetString("Label_AccountBalanceInfo", resourceCulture);
+                return ResourceManager.GetString("Label_BirthDateInfo", resourceCulture);
             }
         }
         
@@ -189,6 +189,15 @@ namespace WpfLocalization.Demo.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Enter a number.
+        /// </summary>
+        internal static string Label_Styles_EnterNumber {
+            get {
+                return ResourceManager.GetString("Label_Styles_EnterNumber", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Current UI culture.
         /// </summary>
         internal static string Label_UICulture {
@@ -207,11 +216,20 @@ namespace WpfLocalization.Demo.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to You have {0:C0} in your account..
+        ///   Looks up a localized string similar to You are born on {0:MMM dd}.
         /// </summary>
-        internal static string Text_AccountBalanceInfo {
+        internal static string Text_BirthDateInfo {
             get {
-                return ResourceManager.GetString("Text_AccountBalanceInfo", resourceCulture);
+                return ResourceManager.GetString("Text_BirthDateInfo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to There are {0} days left until your next birthday!.
+        /// </summary>
+        internal static string Text_BirthDateInfo_2 {
+            get {
+                return ResourceManager.GetString("Text_BirthDateInfo_2", resourceCulture);
             }
         }
         
@@ -239,6 +257,42 @@ namespace WpfLocalization.Demo.Properties {
         internal static string Text_MultipleLanguages {
             get {
                 return ResourceManager.GetString("Text_MultipleLanguages", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You can use the extension in style setters including data triggers..
+        /// </summary>
+        internal static string Text_Styles {
+            get {
+                return ResourceManager.GetString("Text_Styles", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You have entered a negative number..
+        /// </summary>
+        internal static string Text_Styles_Number_Negative {
+            get {
+                return ResourceManager.GetString("Text_Styles_Number_Negative", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You have entered a positive number..
+        /// </summary>
+        internal static string Text_Styles_Number_Positive {
+            get {
+                return ResourceManager.GetString("Text_Styles_Number_Positive", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You have entered zero..
+        /// </summary>
+        internal static string Text_Styles_Number_Zero {
+            get {
+                return ResourceManager.GetString("Text_Styles_Number_Zero", resourceCulture);
             }
         }
         

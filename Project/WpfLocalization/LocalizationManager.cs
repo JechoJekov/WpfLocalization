@@ -501,7 +501,7 @@ namespace WpfLocalization
         /// Adds a localized value to the manager.
         /// </summary>
         /// <param name="value"></param>
-        /// <exception cref="InvalidOperationException">The method is not called on the UI thread of <see cref="LocalizedValue.TargetObject"/>.</exception>
+        /// <exception cref="InvalidOperationException">The method is not called on the UI thread of <see cref="LocalizedValueBase.TargetObject"/>.</exception>
         internal static void Add(LocalizedValue value)
         {
             if (value == null)
@@ -509,7 +509,36 @@ namespace WpfLocalization
                 throw new ArgumentNullException(nameof(value));
             }
 
-            var dispatcher = value.TargetObject?.Dispatcher;
+            var dispatcher = value.Dispatcher;
+
+            if (dispatcher == null)
+            {
+                // The dependency object has been GC
+                return;
+            }
+
+            if (false == dispatcher.CheckAccess())
+            {
+                // COMMENT This restriction can be lifted if the DispatcherHandler.Add method becomes thread-safe
+                throw new InvalidOperationException("This method must be called on the UI thread of the DependencyObject whose value is localized.");
+            }
+
+            GetOrCreateDispatcherHander(dispatcher).Add(value);
+        }
+
+        /// <summary>
+        /// Adds a localized value to the manager.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <exception cref="InvalidOperationException">The method is not called on the UI thread of <see cref="LocalizedValueBase.TargetObject"/>.</exception>
+        internal static void Add(SetterLocalizedValue value)
+        {
+            if (value == null)
+            {
+                throw new ArgumentNullException(nameof(value));
+            }
+
+            var dispatcher = value.Dispatcher;
 
             if (dispatcher == null)
             {

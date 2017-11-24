@@ -27,6 +27,11 @@ namespace WpfLocalization
             LinkedList<LocalizedValue> _localizedValueList = new LinkedList<LocalizedValue>();
 
             /// <summary>
+            /// The list of localized values.
+            /// </summary>
+            LinkedList<SetterLocalizedValue> _setterLocalizedValueList = new LinkedList<SetterLocalizedValue>();
+
+            /// <summary>
             /// Dictionary of localized values.
             /// </summary>
             ConditionalWeakTable<DependencyObject, object> _localizedValueDict = new ConditionalWeakTable<DependencyObject, object>();
@@ -108,6 +113,23 @@ namespace WpfLocalization
             }
 
             /// <summary>
+            /// Adds a localized value to the manager.
+            /// </summary>
+            /// <param name="value"></param>
+            /// <exception cref="InvalidOperationException">The method is called on a thread different from the <see cref="Dispatcher"/>'s thread.</exception>
+            public void Add(SetterLocalizedValue value)
+            {
+                if (value == null)
+                {
+                    throw new ArgumentNullException(nameof(value));
+                }
+
+                Dispatcher.VerifyAccess();
+
+                _setterLocalizedValueList.AddLast(value);
+            }
+
+            /// <summary>
             /// Stops localizing the specified property of the specified <see cref="DependencyObject"/>.
             /// </summary>
             /// <param name="targetObject">The owner of the property</param>
@@ -176,7 +198,7 @@ namespace WpfLocalization
             {
                 if (Interlocked.CompareExchange(ref _refreshScheduled, 1, 0) != 0)
                 {
-                    // A refresh is already scheduled
+                    // A refresh is already being scheduled
                     return;
                 }
 
@@ -198,8 +220,18 @@ namespace WpfLocalization
                     _refreshOperation = null;
                 }
 
-                // Schedule the first phase of the refresh operation
-                _refreshOperation = Dispatcher.BeginInvoke(DispatcherPriority.Background, new SendOrPostCallback(RefreshValues), _localizedValueList.First);
+                if (_localizedValueList.First != null)
+                {
+                    // Schedule the first phase of the refresh operation
+                    // Start with regular values; the "RefreshValues" will automatically continue with setter values
+                    _refreshOperation = Dispatcher.BeginInvoke(DispatcherPriority.Background, new SendOrPostCallback(RefreshValues), _localizedValueList.First);
+                }
+                else if (_setterLocalizedValueList.First != null)
+                {
+                    // Schedule the first phase of the refresh operation
+                    // There are no regular values so start with setter values
+                    _refreshOperation = Dispatcher.BeginInvoke(DispatcherPriority.Background, new SendOrPostCallback(RefreshValues), _setterLocalizedValueList.First);
+                }
 
                 // Allow new refresh operations to be scheduled
                 Interlocked.Exchange(ref _refreshScheduled, 0);
@@ -213,7 +245,52 @@ namespace WpfLocalization
             /// </remarks>
             void RefreshValues(object state)
             {
-                var node = (LinkedListNode<LocalizedValue>)state;
+                if (state is LinkedListNode<LocalizedValue> localizedValueNode)
+                {
+                    // In order to avoid blocking the UI thread for too long the refresh is split into phases each of which updates at most 1000 values
+                    for (var k = 0; k < 1000 && localizedValueNode != null; k++, localizedValueNode = localizedValueNode.Next)
+                    {
+                        localizedValueNode.Value.UpdateValue();
+                    }
+
+                    if (localizedValueNode != null)
+                    {
+                        _refreshOperation = Dispatcher.BeginInvoke(DispatcherPriority.Background, new SendOrPostCallback(RefreshValues), localizedValueNode);
+                    }
+                    else if (_setterLocalizedValueList.First != null)
+                    {
+                        // Update setter values
+                        _refreshOperation = Dispatcher.BeginInvoke(DispatcherPriority.Background, new SendOrPostCallback(RefreshValues), _setterLocalizedValueList.First);
+                    }
+                    else
+                    {
+                        _refreshOperation = null;
+                    }
+                }
+                else if (state is LinkedListNode<SetterLocalizedValue> setterLocalizedValueNode)
+                {
+                    // In order to avoid blocking the UI thread for too long the refresh is split into phases each of which updates at most 1000 values
+                    for (var k = 0; k < 1000 && setterLocalizedValueNode != null; k++, setterLocalizedValueNode = setterLocalizedValueNode.Next)
+                    {
+                        setterLocalizedValueNode.Value.UpdateValue();
+                    }
+
+                    if (setterLocalizedValueNode != null)
+                    {
+                        _refreshOperation = Dispatcher.BeginInvoke(DispatcherPriority.Background, new SendOrPostCallback(RefreshValues), setterLocalizedValueNode);
+                    }
+                    else
+                    {
+                        _refreshOperation = null;
+                    }
+                }
+                else
+                {
+                    throw new NotImplementedException($"A localized value of type {state.GetType().FullName} is not handled.");
+                }
+
+#if DEPRECATED
+                var node = (LinkedListNode<LocalizedValueBase>)state;
 
                 // In order to avoid blocking the UI thread for too long the refresh is split into phases each of which updates at most 1000 values
                 for (var k = 0; k < 1000 && node != null; k++, node = node.Next)
@@ -225,10 +302,16 @@ namespace WpfLocalization
                 {
                     _refreshOperation = Dispatcher.BeginInvoke(DispatcherPriority.Background, new SendOrPostCallback(RefreshValues), node);
                 }
+                else if (state is LinkedListNode<LocalizedValue> && _setterLocalizedValueList.First != null)
+                {
+                    // Update setter values
+                    _refreshOperation = Dispatcher.BeginInvoke(DispatcherPriority.Background, new SendOrPostCallback(RefreshValues), _setterLocalizedValueList.First);
+                }
                 else
                 {
                     _refreshOperation = null;
                 }
+#endif
             }
 
             #endregion
@@ -249,9 +332,12 @@ namespace WpfLocalization
                     return;
                 }
 
-                Dispatcher.BeginInvoke(DispatcherPriority.Background, new SendOrPostCallback(PurgeValues), _localizedValueList.First);
+                Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(StartPurgeValues));
             }
 
+            /// <summary>
+            /// Removes localized values of <see cref="DependencyObject"/>s that has been GC.
+            /// </summary>
             /// <remarks>
             /// This method is thread-safe.
             /// </remarks>
@@ -263,13 +349,35 @@ namespace WpfLocalization
                     return;
                 }
 
-                Dispatcher.BeginInvoke(DispatcherPriority.Background, new SendOrPostCallback(PurgeValues), _localizedValueList.First);
+                Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(StartPurgeValues));
+            }
+
+            /// <summary>
+            /// Starts purging localized values.
+            /// </summary>
+            /// <remarks>
+            /// CAUTION This method must be called on the <see cref="Dispatcher"/>'s thread.
+            /// </remarks>
+            void StartPurgeValues()
+            {
+                if (_localizedValueList.First != null)
+                {
+                    PurgeValues(_localizedValueList.First);
+                }
+                else
+                {
+                    // The purge is complete
+                    Interlocked.Exchange(ref _purgeInProgress, 0);
+                }
             }
 
             /// <summary>
             /// Removes localized values of <see cref="DependencyObject"/>s that has been GC.
             /// </summary>
             /// <param name="state"></param>
+            /// <remarks>
+            /// CAUTION This method must be called on the <see cref="Dispatcher"/>'s thread.
+            /// </remarks>
             void PurgeValues(object state)
             {
                 var node = (LinkedListNode<LocalizedValue>)state;

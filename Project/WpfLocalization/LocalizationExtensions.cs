@@ -15,6 +15,8 @@ namespace WpfLocalization
     /// </summary>
     public static class LocalizationExtensions
     {
+        #region Property
+
         /// <summary>
         /// Returns an object that can be used to localize the specified property of the specified <see cref="DependencyObject"/>.
         /// </summary>
@@ -91,6 +93,10 @@ namespace WpfLocalization
                 throw new ArgumentOutOfRangeException(nameof(propertyName), propertyName, "Property not found.");
             }
         }
+
+        #endregion
+
+        #region Set value
 
         /// <summary>
         /// Localizes the specified property with a resource value.
@@ -189,6 +195,24 @@ namespace WpfLocalization
 
             LocalizationManager.Add(localizedValue);
         }
+
+        /// <summary>
+        /// Localizes the specified property by using a callback to obtain a localized value.
+        /// </summary>
+        /// <param name="property"></param>
+        /// <param name="callbackParameter"></param>
+        public static void Callback(this LocalizableProperty property, LocalizationCallback callback, object callbackParameter)
+        {
+            var localizedValue = new LocalizedValue(property.TargetObject, property.TargetProperty)
+            {
+                Callback = callback,
+                CallbackParameter = callbackParameter,
+            };
+
+            LocalizationManager.Add(localizedValue);
+        }
+
+        #endregion
 
         /// <summary>
         /// Removes the localization from the specified property.

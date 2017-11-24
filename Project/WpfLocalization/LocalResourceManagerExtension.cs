@@ -61,8 +61,19 @@ namespace WpfLocalization
             }
             else
             {
-                var type = assembly.GetType(assembly.GetName().Name + ".Properties." + Name, false) // C#
-                    ?? assembly.GetType(assembly.GetName().Name + "." + Name, false); // VB.NET
+                Type type;
+
+                if (Name.IndexOf('.') < 0)
+                {
+                    // Partial name
+                    type = assembly.GetType(assembly.GetName().Name + ".Properties." + Name, false) // C#
+                       ?? assembly.GetType(assembly.GetName().Name + "." + Name, false); // VB.NET
+                }
+                else
+                {
+                    // Full name
+                    type = assembly.GetType(Name, false);
+                }
 
                 resourceManager = type == null ? null : ResourceManagerHelper.GetResourceManager(type);
             }

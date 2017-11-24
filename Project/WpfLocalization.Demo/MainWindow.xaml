@@ -15,9 +15,9 @@
         SizeToContent="Height"
         Loaded="Window_Loaded"
         mc:Ignorable="d"
-        Title="WPF Localization Demo" Width="525">
+        Title="WPF Localization Demo" Width="535">
     <Window.Resources>
-        <data:User x:Key="UserData" FirstName="John" LastName="Smith" AccountBalance="1000000"/>
+        <data:User x:Key="UserData" FirstName="John" LastName="Smith" BirthDate="1991-07-15"/>
         <!-- Styles -->
         <Style TargetType="TextBlock">
             <Style.Setters>
@@ -78,7 +78,7 @@
             </Grid>
         </GroupBox>
         <TabControl Padding="5" MinHeight="200">
-            <TabItem Header="Basic examples">
+            <TabItem Header="Basic examples" Height="23" VerticalAlignment="Top">
                 <StackPanel>
                     <GroupBox Header="{Loc Label_InputData}">
                         <Grid DataContext="{StaticResource UserData}">
@@ -94,11 +94,11 @@
                             </Grid.ColumnDefinitions>
                             <Label Grid.Row="0" Grid.Column="0" Content="{Loc Label_Name}"/>
                             <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal">
-                                <TextBox x:Name="textBoxUser_FirstName" Width="120" ToolTip="Please enter your first name." Text="{Binding FirstName}"/>
-                                <TextBox x:Name="textBoxUser_LastName" Width="120" ToolTip="Please enter your last name." Margin="10,0,0,0" Text="{Binding LastName}"/>
+                                <TextBox Width="120" ToolTip="Please enter your first name." Text="{Binding FirstName}"/>
+                                <TextBox Width="120" ToolTip="Please enter your last name." Margin="10,0,0,0" Text="{Binding LastName}"/>
                             </StackPanel>
-                            <Label Grid.Row="1" Grid.Column="0" Content="{Loc Label_AccountBalance}"/>
-                            <TextBox Grid.Row="1" Grid.Column="1" x:Name="textBoxUser_AccountBalance" Width="100" Text="{Binding AccountBalance}"/>
+                            <Label Grid.Row="1" Grid.Column="0" Content="{Loc Label_BirthDate}"/>
+                            <TextBox Grid.Row="1" Grid.Column="1" Width="100" Text="{Binding BirthDate, StringFormat=d}"/>
                         </Grid>
                     </GroupBox>
                     <GroupBox Header="{Loc Label_Information}">
@@ -116,9 +116,10 @@
                             </Grid.RowDefinitions>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="200"/>
-                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="2*"/>
+                                <ColumnDefinition Width="11*"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Row="0" Grid.ColumnSpan="2" TextWrapping="Wrap" Padding="5" Background="#F0F0F0">
+                            <TextBlock Grid.Row="0" Grid.ColumnSpan="3" TextWrapping="Wrap" Padding="5" Background="#F0F0F0">
                                 <TextBlock.Text>
                                     <Loc Key="Text_Welcome">
                                         <Binding Path="FirstName"/>
@@ -126,27 +127,101 @@
                                     </Loc>
                                 </TextBlock.Text>
                             </TextBlock>
-                            <Label Grid.Row="1" Grid.Column="0" Content="{Loc Label_UICulture}"/>
-                            <Label Grid.Row="2" Grid.Column="0" Content="{Loc Label_Culture}"/>
-                            <Label Grid.Row="3" Grid.Column="0" Content="{Loc Label_Language}"/>
-                            <Label Grid.Row="4" Grid.Column="0" Content="{Loc Label_Currency}"/>
-                            <Label Grid.Row="5" Grid.Column="0" Content="{Loc Label_AccountBalanceInfo}"/>
-                            <Label Grid.Row="6" Grid.Column="0" Content="{Loc Label_Date}"/>
+                            <Label Grid.Row="1" Grid.Column="0" Content="{Loc Label_UICulture}" Margin="0,3"/>
+                            <Label Grid.Row="2" Grid.Column="0" Content="{Loc Label_Culture}" Margin="0,3"/>
+                            <Label Grid.Row="3" Grid.Column="0" Content="{Loc Label_Language}" Margin="0,3"/>
+                            <Label Grid.Row="4" Grid.Column="0" Content="{Loc Label_Currency}" Margin="0,3"/>
+                            <Label Grid.Row="5" Grid.Column="0" Content="{Loc Label_BirthDateInfo}" Margin="0,3"/>
+                            <Label Grid.Row="7" Grid.Column="0" Content="{Loc Label_Date}" Margin="0,3"/>
 
-                            <TextBlock Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Text="{Loc Binding={Binding Path=CurrentUICulture.Name, Source={x:Static thread:Thread.CurrentThread}}}"/>
-                            <TextBlock Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" Text="{Loc Binding={Binding Path=CurrentCulture.Name, Source={x:Static thread:Thread.CurrentThread}}}"/>
-                            <TextBlock Grid.Row="3" Grid.Column="1" VerticalAlignment="Center" Text="{Loc Binding={Binding Path=CurrentUICulture.NativeName, Source={x:Static thread:Thread.CurrentThread}}}"/>
-                            <TextBlock Grid.Row="4" Grid.Column="1" VerticalAlignment="Center" Text="{Loc Binding={Binding Path=CurrentCulture.NumberFormat.CurrencySymbol, Source={x:Static thread:Thread.CurrentThread}}}"/>
-                            <TextBlock Grid.Row="5" Grid.Column="1" VerticalAlignment="Center" Text="{Loc Text_AccountBalanceInfo, Binding={Binding Path=AccountBalance}}"/>
-                            <TextBlock Grid.Row="6" Grid.Column="1" VerticalAlignment="Center" Text="{Loc StringFormat='{}{0:d}', Binding={Binding Path=Today, Source={x:Static system:DateTime.Now}}}"/>
+                            <TextBlock Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Text="{Loc Binding={Binding Path=CurrentUICulture.Name, Source={x:Static thread:Thread.CurrentThread}}}" Grid.ColumnSpan="2"/>
+                            <TextBlock Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" Text="{Loc Binding={Binding Path=CurrentCulture.Name, Source={x:Static thread:Thread.CurrentThread}}}" Grid.ColumnSpan="2"/>
+                            <TextBlock Grid.Row="3" Grid.Column="1" VerticalAlignment="Center" Text="{Loc Binding={Binding Path=CurrentUICulture.NativeName, Source={x:Static thread:Thread.CurrentThread}}}" Grid.ColumnSpan="2"/>
+                            <TextBlock Grid.Row="4" Grid.Column="1" VerticalAlignment="Center" Text="{Loc Binding={Binding Path=CurrentCulture.NumberFormat.CurrencySymbol, Source={x:Static thread:Thread.CurrentThread}}}" Grid.ColumnSpan="2"/>
+                            <TextBlock Grid.Row="5" Grid.Column="1" VerticalAlignment="Center" Text="{Loc Text_BirthDateInfo, Binding={Binding Path=BirthDate}}" Grid.ColumnSpan="2"/>
+                            <TextBlock Grid.Row="6" Grid.Column="1" VerticalAlignment="Center" Text="{Loc Text_BirthDateInfo_2, Binding={Binding Path=BirthDate}, Callback=BirthDateInfoCallback}" Grid.ColumnSpan="2"/>
+                            <TextBlock Grid.Row="7" Grid.Column="1" VerticalAlignment="Center" Text="{Loc StringFormat='{}{0:d}', Binding={Binding Path=Today, Source={x:Static system:DateTime.Now}}}" Grid.ColumnSpan="2"/>
                         </Grid>
                     </GroupBox>
                 </StackPanel>
+            </TabItem>
+            <TabItem Header="Various resources">
+                <Grid Margin="0,10,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="200"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Label Grid.Row="1" Grid.Column="0" Content="{Loc Label_Flag}"/>
+                    <Label Grid.Row="2" Grid.Column="0" Content="{Loc Label_Capital}"/>
+
+                    <Image Grid.Row="1" Grid.Column="1" Source="{Loc Icon_Flag}" Stretch="None" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{Loc Text_Capital}"/>
+                    <Image Grid.Row="3" Grid.Column="1" Source="{Loc Image_Capital}" Stretch="Uniform" Width="200" Height="150" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Styles &amp; Templates">
+                <Grid Margin="0,10,0,0">
+                    <Grid.Resources>
+                        <data:StyleDemoData x:Key="StyleDemoData_1"/>
+                        <data:StyleDemoData x:Key="StyleDemoData_2"/>
+                        <Style x:Key="TextBlock_Number" TargetType="TextBlock">
+                            <Setter Property="Text" Value="{Loc Text_Styles_Number_Zero}"/>
+                            <Setter Property="Foreground" Value="Gray"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Path=IsPositiveNumber}" Value="True">
+                                    <Setter Property="Text" Value="{Loc Text_Styles_Number_Positive}"/>
+                                    <Setter Property="Foreground" Value="Green"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Path=IsNegativeNumber}" Value="True">
+                                    <Setter Property="Text" Value="{Loc Text_Styles_Number_Negative}"/>
+                                    <Setter Property="Foreground" Value="Red"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Grid.Resources>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="200"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Row="0" Grid.ColumnSpan="2" TextWrapping="Wrap" Text="{Loc Text_Styles}" Padding="5" Background="#F0F0F0" />
+
+                    <Label Grid.Row="1" Grid.Column="0" Content="{Loc Label_Styles_EnterNumber}"/>
+                    <TextBox Grid.Row="1" Grid.Column="1" Width="100" Text="{Binding Number}" DataContext="{StaticResource StyleDemoData_1}"/>
+                    <TextBlock Grid.Row="2" Grid.Column="1" TextWrapping="Wrap" Style="{StaticResource TextBlock_Number}" DataContext="{StaticResource StyleDemoData_1}"/>
+
+                    <Label Grid.Row="3" Grid.Column="0" Content="{Loc Label_Styles_EnterNumber}"/>
+                    <TextBox Grid.Row="3" Grid.Column="1" Width="100" Text="{Binding Number}" DataContext="{StaticResource StyleDemoData_2}"/>
+                    <TextBlock Grid.Row="4" Grid.Column="1" TextWrapping="Wrap" Style="{StaticResource TextBlock_Number}" DataContext="{StaticResource StyleDemoData_2}"/>
+                </Grid>
             </TabItem>
             <TabItem Header="Multiple resource files">
                 <StackPanel LocalizationScope.ResourceManager="{ResourceManager Type={x:Type properties:AltResources}}">
                     <TextBlock TextWrapping="Wrap" Text="{Loc Text_Explanation}"/>
                     <TextBlock TextWrapping="Wrap" Margin="0,10,0,0" LocalizationScope.ResourceManager="{ResourceManager AssemblyName='WpfLocalization.Demo', ResourceFile='WpfLocalization.Demo.Properties.Alt2Resources'}" Text="{Loc Text_Explanation}"/>
+                </StackPanel>
+            </TabItem>
+            <TabItem Header="User &amp; custom controls">
+                <StackPanel>
+                    <uc:InfoUserControl/>
+                    <controls:SampleCustomControl Margin="0,10,0,0" BorderBrush="Red" BorderThickness="1" Padding="5" DataContext="{StaticResource UserData}" FirstName="{Binding FirstName}" LastName="{Binding LastName}"/>
+                    <controls:NonDepCustomControl Margin="0,10,0,0" BorderBrush="Green" BorderThickness="1" Padding="5" Message="{Loc NonDepCustomControl_Message}"/>
                 </StackPanel>
             </TabItem>
             <TabItem Header="Multiple languages" x:Name="tabItemMultipleLanguages">
@@ -184,34 +259,6 @@
                         </ComboBox>
                         <TextBlock Grid.Row="3" Grid.Column="1" VerticalAlignment="Center" Text="{Loc StringFormat='{}{0:d}', Binding={Binding Path=Today, Source={x:Static system:DateTime.Now}}}"/>
                     </Grid>
-                </StackPanel>
-            </TabItem>
-            <TabItem Header="Various resources">
-                <Grid Margin="0,10,0,0">
-                    <Grid.RowDefinitions>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="200"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-
-                    <Label Grid.Row="1" Grid.Column="0" Content="{Loc Label_Flag}"/>
-                    <Label Grid.Row="2" Grid.Column="0" Content="{Loc Label_Capital}"/>
-
-                    <Image Grid.Row="1" Grid.Column="1" Source="{Loc Icon_Flag}" Stretch="None" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{Loc Text_Capital}"/>
-                    <Image Grid.Row="3" Grid.Column="1" Source="{Loc Image_Capital}" Stretch="Uniform" Width="200" Height="150" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                </Grid>
-            </TabItem>
-            <TabItem Header="User &amp; custom controls">
-                <StackPanel>
-                    <uc:InfoUserControl/>
-                    <controls:SampleCustomControl Margin="0,10,0,0" BorderBrush="Red" BorderThickness="1" Padding="5" DataContext="{StaticResource UserData}" FirstName="{Binding FirstName}" LastName="{Binding LastName}"/>
-                    <controls:NonDepCustomControl Margin="0,10,0,0" BorderBrush="Green" BorderThickness="1" Padding="5" Message="{Loc NonDepCustomControl_Message}"/>
                 </StackPanel>
             </TabItem>
             <TabItem Header="Multiple UI threads">

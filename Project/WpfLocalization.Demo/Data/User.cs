@@ -11,6 +11,6 @@ namespace WpfLocalization.Demo.Data
 
         public string LastName { get; set; }
 
-        public double? AccountBalance { get; set; }
+        public DateTime BirthDate { get; set; }
     }
 }

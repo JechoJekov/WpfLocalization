@@ -19,22 +19,8 @@ namespace WpfLocalization
     /// <summary>
     /// Represents a localized value.
     /// </summary>
-    class LocalizedValue : IServiceProvider, IProvideValueTarget
+    class LocalizedValue : LocalizedValueBase, IServiceProvider, IProvideValueTarget
     {
-        #region Constants
-
-        /// <summary>
-        /// The error message to display in place of a localized value when no resource manager was found.
-        /// </summary>
-        const string ErrorMessage_ResourceManagerNotFound = "[- Resource File Not Found -]";
-
-        /// <summary>
-        /// The error message to display in place of a localized value when the specified resource key was not found.
-        /// </summary>
-        const string ErrorMessage_ResourceKeyNotFound = "[{0}]";
-
-        #endregion
-
         #region TargetObject
 
         /// <summary>
@@ -44,6 +30,14 @@ namespace WpfLocalization
         /// CAUTION This value is <c>null</c> if the object has been GC.
         /// </remarks>
         public DependencyObject TargetObject => _targetObject.Target as DependencyObject;
+
+        /// <summary>
+        /// Returns the <see cref="Dispatcher"/> of the owner of the localized property.
+        /// </summary>
+        /// <remarks>
+        /// CAUTION This value is <c>null</c> if the owner has been GC.
+        /// </remarks>
+        public override Dispatcher Dispatcher => TargetObject?.Dispatcher;
 
         /// <summary>
         /// Gets a value indicating if the owner of the property still exists.
@@ -73,26 +67,6 @@ namespace WpfLocalization
         /// </summary>
         public LocalizedProperty TargetProperty { get; }
 
-        Tuple<DependencyObject, LocalizedProperty> _dictKey;
-
-        /// <summary>
-        /// A key used for dictionary lookups.
-        /// </summary>
-        internal Tuple<DependencyObject, LocalizedProperty> DictKey
-        {
-            get
-            {
-                return _dictKey ?? (_dictKey = new Tuple<DependencyObject, LocalizedProperty>(TargetObject, TargetProperty));
-            }
-        }
-
-        /// <summary>
-        /// The name of the resource.
-        /// </summary>
-        /// <remarks>
-        /// </remarks>
-        public string Key { get; set; }
-
         /// <summary>
         /// The format string to use in conjunction with <see cref="Binding"/> or <see cref="Bindings"/>.
         /// </summary>
@@ -116,29 +90,16 @@ namespace WpfLocalization
         /// The binding used to obtain the value.
         /// </summary>
         MultiBinding _finalBinding;
+
+        /// <summary>
+        /// The binding expression used to obtain the value.
+        /// </summary>
         BindingExpressionBase _finalBindingExpression;
 
         #endregion
 
-        #region Converter
-
-        /// <summary>
-        /// The converter to use to convert the value before it is assigned to the property.
-        /// </summary>
-        /// <remarks>
-        /// The converter is ignored on data-bound values.
-        /// </remarks>
-        public IValueConverter Converter { get; set; }
-
-        /// <summary>
-        /// The parameter to pass to the converter.
-        /// </summary>
-        /// <remarks>
-        /// The converter is ignored on data-bound values.
-        /// </remarks>
-        public object ConverterParameter { get; set; }
-
-        #endregion
+        IValueConverter _finalConverter;
+        object _finalConverterParameter;
 
         public LocalizedValue(DependencyObject targetObject, LocalizedProperty targetProperty)
         {
@@ -153,7 +114,10 @@ namespace WpfLocalization
         /// <summary>
         /// Updates the value of the property.
         /// </summary>
-        public void UpdateValue()
+        /// <remarks>
+        /// CAUTION This method must be called on a UI thread.
+        /// </remarks>
+        public override void UpdateValue()
         {
             var targetObject = this.TargetObject;
             if (targetObject == null)
@@ -162,6 +126,9 @@ namespace WpfLocalization
                 return;
             }
 
+            GetOrUpdateValue(targetObject, true);
+
+#if DEPRECATED
             if (targetObject.Dispatcher.CheckAccess())
             {
                 GetOrUpdateValue(targetObject, true);
@@ -170,6 +137,7 @@ namespace WpfLocalization
             {
                 targetObject.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new SendOrPostCallback(x => GetOrUpdateValue((DependencyObject)x, true)), targetObject);
             }
+#endif
         }
 
         /// <summary>
@@ -208,6 +176,32 @@ namespace WpfLocalization
 
             var cultureInfo = LocalizationScope.GetCulture(targetObject) ?? dispatcher.Thread.CurrentCulture;
             var uiCultureInfo = LocalizationScope.GetUICulture(targetObject) ?? dispatcher.Thread.CurrentUICulture;
+
+            #region Converter
+
+            if (_finalConverter == null)
+            {
+                if (Callback != null)
+                {
+                    _finalConverter = new CallbackValueConverter(this);
+#if GOOD_DESIGN_MORE_MEMORY
+                    _finalConverter = new CallbackValueConverter(Callback, Converter, ConverterParameter);
+#endif
+                    _finalConverterParameter = CallbackParameter;
+                }
+                else if (Converter != null)
+                {
+                    _finalConverter = Converter;
+                    _finalConverterParameter = ConverterParameter;
+                }
+            }
+
+            if (_finalConverterParameter is CallbackValueConverter callbackValueConverter)
+            {
+                callbackValueConverter.UICulture = uiCultureInfo;
+            }
+
+            #endregion
 
             #region Resource value
 
@@ -283,6 +277,8 @@ namespace WpfLocalization
                     {
                         Mode = BindingMode.OneWay,
                         StringFormat = stringFormat,
+                        Converter = _finalConverter == null ? null : new MultiToSingleValueConverter(_finalConverter),
+                        ConverterParameter = _finalConverterParameter,
                         ConverterCulture = cultureInfo,
                     };
 
@@ -322,9 +318,9 @@ namespace WpfLocalization
             {
                 object targetValue;
 
-                if (Converter != null)
+                if (_finalConverter != null)
                 {
-                    targetValue = Converter.Convert(resourceValue, TargetProperty.PropertyType, ConverterParameter, cultureInfo);
+                    targetValue = _finalConverter.Convert(resourceValue, TargetProperty.PropertyType, _finalConverterParameter, cultureInfo);
                 }
                 else if (false == TargetProperty.PropertyType.IsAssignableFrom(resourceValue.GetType()))
                 {

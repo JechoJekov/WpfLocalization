@@ -29,5 +29,19 @@ namespace WpfLocalization.Demo
         {
 
         }
+
+        object BirthDateInfoCallback(CultureInfo culture, CultureInfo uiCulture, object parameter, object dataBindingValue)
+        {
+            // Calculate the number of days left until the user's next birthday
+
+            var birthDate = (DateTime)dataBindingValue;
+            var now = DateTime.Now;
+            birthDate = new DateTime(now.Year, birthDate.Month, birthDate.Day);
+            if (birthDate < now)
+            {
+                birthDate = birthDate.AddYears(1);
+            }
+            return (int)(birthDate - now).TotalDays;
+        }
     }
 }
