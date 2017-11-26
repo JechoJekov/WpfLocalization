@@ -4,9 +4,11 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WpfLocalization.VBDemo"
+        xmlns:usercontrols="clr-namespace:WpfLocalization.VBDemo.UserControls;assembly=WpfLocalization.VBDemo.UserControls"
         mc:Ignorable="d"
         Title="MainWindow" Height="350" Width="525">
-    <Grid>
-        
-    </Grid>
+    <StackPanel>
+        <TextBlock Text="{Loc Welcome}"/>
+        <usercontrols:UserControl1/>
+    </StackPanel>
 </Window>

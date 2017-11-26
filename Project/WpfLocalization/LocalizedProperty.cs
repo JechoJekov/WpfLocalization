@@ -24,6 +24,11 @@ namespace WpfLocalization
         /// </summary>
         public abstract Type PropertyType { get; }
 
+        /// <summary>
+        /// Gets the default value of the property.
+        /// </summary>
+        public abstract object DefaultValue { get; }
+
         protected LocalizedProperty() { }
 
         /// <summary>

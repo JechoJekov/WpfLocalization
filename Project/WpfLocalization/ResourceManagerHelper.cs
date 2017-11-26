@@ -93,7 +93,29 @@ namespace WpfLocalization
                 throw new ArgumentNullException(nameof(type));
             }
 
-            return _resourceManagerDict.GetOrAdd(type, x => new ResourceManager(x));
+            return _resourceManagerDict.GetOrAdd(type, x => CreateResourceManager(x));
+        }
+
+        /// <summary>
+        /// Creates a resource manager associated with the specified type.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        static ResourceManager CreateResourceManager(Type type)
+        {
+            Debug.Assert(type != null);
+
+            if (type.Namespace.EndsWith("My.Resources"))
+            {
+                // The resource file is located in "My Projects" of a VB.NET assembly. "ResourceManager" is unable to use
+                // the type to determine the name of the resources.
+                var resourceBaseName = type.Namespace.Substring(0, type.Namespace.Length - "My.Resources".Length) + type.Name;
+                return new ResourceManager(resourceBaseName, type.Assembly);
+            }
+            else
+            {
+                return new ResourceManager(type);
+            }
         }
 
         /// <summary>
@@ -141,7 +163,7 @@ namespace WpfLocalization
             {
                 // Partial name
                 return assembly.GetType(assembly.GetName().Name + ".Properties." + typeName, false) // C#
-                   ?? assembly.GetType(assembly.GetName().Name + "." + typeName, false); // VB.NET
+                   ?? assembly.GetType(assembly.GetName().Name + ".My.Resources." + typeName, false); // VB.NET
             }
             else
             {

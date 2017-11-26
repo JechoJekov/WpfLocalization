@@ -21,6 +21,11 @@ namespace WpfLocalization
         /// </summary>
         public DependencyProperty Property { get; }
 
+        /// <summary>
+        /// Gets the default value of the property.
+        /// </summary>
+        public override object DefaultValue => Property.DefaultMetadata.DefaultValue;
+
         public LocalizedDepProperty(DependencyProperty property)
         {
             this.Property = property ?? throw new ArgumentNullException(nameof(property));

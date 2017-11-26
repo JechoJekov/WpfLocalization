@@ -196,6 +196,8 @@ namespace WpfLocalization
             LocalizationManager.Add(localizedValue);
         }
 
+        #region Callback
+
         /// <summary>
         /// Localizes the specified property by using a callback to obtain a localized value.
         /// </summary>
@@ -211,6 +213,64 @@ namespace WpfLocalization
 
             LocalizationManager.Add(localizedValue);
         }
+
+        /// <summary>
+        /// Localizes the specified property by using a callback to obtain a localized value.
+        /// </summary>
+        /// <param name="property"></param>
+        /// <param name="callbackParameter"></param>
+        public static void CallbackFormat(this LocalizableProperty property, LocalizationCallback callback, object callbackParameter, string stringFormat)
+        {
+            CallbackFormat(property, callback, callbackParameter, stringFormat, null);
+        }
+
+        /// <summary>
+        /// Localizes the specified property by using a callback to obtain a localized value.
+        /// </summary>
+        /// <param name="property"></param>
+        /// <param name="callbackParameter"></param>
+        public static void CallbackFormat(this LocalizableProperty property, LocalizationCallback callback, object callbackParameter, string stringFormat, BindingBase binding)
+        {
+            var localizedValue = new LocalizedValue(property.TargetObject, property.TargetProperty)
+            {
+                StringFormat = stringFormat,
+                Binding = binding,
+                Callback = callback,
+                CallbackParameter = callbackParameter,
+            };
+
+            LocalizationManager.Add(localizedValue);
+        }
+
+        /// <summary>
+        /// Localizes the specified property by using a callback to obtain a localized value.
+        /// </summary>
+        /// <param name="property"></param>
+        /// <param name="callbackParameter"></param>
+        public static void CallbackResourceFormat(this LocalizableProperty property, LocalizationCallback callback, object callbackParameter, string resourceKey)
+        {
+            CallbackResourceFormat(property, callback, callbackParameter, resourceKey, null);
+        }
+
+        /// <summary>
+        /// Localizes the specified property by using a callback to obtain a localized value.
+        /// </summary>
+        /// <param name="property"></param>
+        /// <param name="callbackParameter"></param>
+        public static void CallbackResourceFormat(this LocalizableProperty property, LocalizationCallback callback, object callbackParameter, string resourceKey, BindingBase binding)
+        {
+            var localizedValue = new LocalizedValue(property.TargetObject, property.TargetProperty)
+            {
+                Key = resourceKey,
+                Binding = binding,
+                Callback = callback,
+                CallbackParameter = callbackParameter,
+            };
+
+            LocalizationManager.Add(localizedValue);
+        }
+
+        #endregion
 
         #endregion
 

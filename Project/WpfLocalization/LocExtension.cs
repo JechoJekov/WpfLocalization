@@ -185,7 +185,7 @@ namespace WpfLocalization
                         localizedValue
                         );
 
-                    return TypeUtils.GetDefaultValue(localizedProperty.PropertyType);
+                    return localizedProperty.DefaultValue;
                 }
                 else
                 {

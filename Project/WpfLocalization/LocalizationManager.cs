@@ -46,6 +46,8 @@ namespace WpfLocalization
         {
             get
             {
+                WpfUtils.VerifyIsUIThread();
+
                 return Thread.CurrentThread.CurrentCulture;
             }
             set
@@ -79,6 +81,8 @@ namespace WpfLocalization
         {
             get
             {
+                WpfUtils.VerifyIsUIThread();
+
                 return Thread.CurrentThread.CurrentUICulture;
             }
             set

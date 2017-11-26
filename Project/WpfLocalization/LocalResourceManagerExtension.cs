@@ -41,13 +41,13 @@ namespace WpfLocalization
     [MarkupExtensionReturnType(typeof(ResourceManager))]
     public class LocalResourceManagerExtension : MarkupExtension
     {
-        public string Name { get; set; }
+        public string ResourceFile { get; set; }
 
         public LocalResourceManagerExtension() { }
 
-        public LocalResourceManagerExtension(string name)
+        public LocalResourceManagerExtension(string resourceFile)
         {
-            this.Name = name;
+            this.ResourceFile = resourceFile;
         }
 
         public override object ProvideValue(IServiceProvider serviceProvider)
@@ -96,15 +96,15 @@ namespace WpfLocalization
                 throw new NotSupportedException("The 'LocalResourceManager' extension can be used only on <Window> and <UserControl> elements.");
             }
 
-            if (string.IsNullOrEmpty(Name))
+            if (string.IsNullOrEmpty(ResourceFile))
             {
                 return ResourceManagerHelper.GetDefaultResourceManagerForAssembly(assembly)
                     ?? throw new InvalidOperationException($"Default resource file was not found in '{assembly.GetName().Name}'.");
             }
             else
             {
-                return ResourceManagerHelper.GetResourceManager(assembly, Name) 
-                    ?? throw new InvalidOperationException($"Resource file named '{Name}' was not found in '{assembly.GetName().Name}'.");
+                return ResourceManagerHelper.GetResourceManager(assembly, ResourceFile) 
+                    ?? throw new InvalidOperationException($"Resource file named '{ResourceFile}' was not found in '{assembly.GetName().Name}'.");
             }
         }
     }

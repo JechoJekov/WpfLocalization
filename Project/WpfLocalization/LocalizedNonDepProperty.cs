@@ -22,6 +22,11 @@ namespace WpfLocalization
         /// </summary>
         public PropertyInfo Property { get; }
 
+        /// <summary>
+        /// Gets the default value of the property.
+        /// </summary>
+        public override object DefaultValue => TypeUtils.GetDefaultValue(Property.PropertyType);
+
         public LocalizedNonDepProperty(PropertyInfo property)
         {
             this.Property = property ?? throw new ArgumentNullException(nameof(property));
