@@ -27,6 +27,32 @@ namespace WpfLocalization
         }
 
         /// <summary>
+        /// Finds the root ancestor the specified <see cref="DependencyObject"/>.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="dependencyObject"></param>
+        /// <returns>
+        /// The parent or <c>null</c> if the a parent of type <typeparamref name="T"/> was not found.
+        /// </returns>
+        public static DependencyObject FindRootAncestor(DependencyObject dependencyObject)
+        {
+            if (dependencyObject == null)
+            {
+                throw new ArgumentNullException(nameof(dependencyObject));
+            }
+
+            DependencyObject parent;
+
+            for (
+                parent = VisualTreeHelper.GetParent(dependencyObject);
+                parent != null;
+                parent = VisualTreeHelper.GetParent(parent)
+                ) ;
+
+            return parent;
+        }
+
+        /// <summary>
         /// Finds the first an ancestor of type <typeparamref name="T"/> of the specified <see cref="DependencyObject"/>.
         /// </summary>
         /// <typeparam name="T"></typeparam>

@@ -47,6 +47,7 @@
     <Compile Include="AssemblyAttributes.cs" />
     <Compile Include="Converters\CallbackValueConverter.cs" />
     <Compile Include="Converters\MultiToSingleValueConverter.cs" />
+    <Compile Include="DesignTimeHelper.cs" />
     <Compile Include="LocalizableProperty.cs" />
     <Compile Include="Converters\BitmapSourceConverter.cs" />
     <Compile Include="Converters\DefaultValueConverter.cs" />

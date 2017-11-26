@@ -656,9 +656,18 @@ namespace WpfLocalization
         {
             Debug.Assert(dispatcher != null);
 
-            lock (_dispatcherHandlerList)
+            var lastDispatcherHandler = _lastDispatcherHandler;
+
+            if (lastDispatcherHandler != null && dispatcher == lastDispatcherHandler.Dispatcher)
             {
-                return _dispatcherHandlerList.Find(x => x.Dispatcher == dispatcher);
+                return lastDispatcherHandler;
+            }
+            else
+            {
+                lock (_dispatcherHandlerList)
+                {
+                    return _dispatcherHandlerList.Find(x => x.Dispatcher == dispatcher);
+                }
             }
         }
 

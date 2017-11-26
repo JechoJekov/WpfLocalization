@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
 using System.Resources;
 using System.Text;
 using System.Windows;
@@ -12,6 +14,10 @@ namespace WpfLocalization
     /// <summary>
     /// Loads resources located in the same assembly as the <see cref="Window"/> or <see cref="UserControl"/> on which the extension is used.
     /// </summary>
+    /// <remarks>
+    /// CAUTION This extension can only be used when setting <see cref="LocalizationScope.ResourceManager"/> attached property 
+    /// on a <see cref="Window"/> or a <see cref="UserControl"/>. It cannot be used in the content of a window or a user control.
+    /// </remarks>
     /// <example>
     /// This example uses the default resource file of the assembly in which the user control is located.
     /// <code>
@@ -51,34 +57,55 @@ namespace WpfLocalization
                 return null;
             }
 
-            var assembly = service.TargetObject.GetType().Assembly;
+            Assembly assembly;
 
-            ResourceManager resourceManager;
-
-            if (string.IsNullOrEmpty(Name))
+            if (service.TargetObject is DependencyObject depObj && DesignerProperties.GetIsInDesignMode(depObj))
             {
-                return ResourceManagerHelper.GetDefaultResourceManagerForAssembly(assembly);
-            }
-            else
-            {
-                Type type;
+                // WPF Designer uses an instance of "System.Windows.Controls.UserControl" to represent a user control
+                // (not the actual type) and "Microsoft.VisualStudio.DesignTools.WpfDesigner.InstanceBuilders.WindowInstance"
+                // to represent a mock window
 
-                if (Name.IndexOf('.') < 0)
+                if (depObj is UserControl || (depObj is FrameworkElement frameworkElement && frameworkElement.Parent == null))
                 {
-                    // Partial name
-                    type = assembly.GetType(assembly.GetName().Name + ".Properties." + Name, false) // C#
-                       ?? assembly.GetType(assembly.GetName().Name + "." + Name, false); // VB.NET
+                    // The element is a user control or a root element (e.g. a mock-up window - WindowInstance)
+
+                    // Check if the object is a mock object or an actual instance. If it is an actual instance then
+                    // the user control is used in another user control or a window
+                    if (depObj.GetType() == typeof(UserControl) || DesignTimeHelper.IsWpfDesignerAssembly(depObj.GetType().Assembly))
+                    {
+                        // The object is a mock object; therefore, use the design-time assembly 
+                        assembly = DesignTimeHelper.GetDesignTimeAssembly();
+                    }
+                    else
+                    {
+                        // The object is an actual instance
+                        assembly = depObj.GetType().Assembly;
+                    }
                 }
                 else
                 {
-                    // Full name
-                    type = assembly.GetType(Name, false);
+                    throw new NotSupportedException("The 'LocalResourceManager' extension can be used only on <Window> and <UserControl> elements.");
                 }
-
-                resourceManager = type == null ? null : ResourceManagerHelper.GetResourceManager(type);
+            }
+            else if (service.TargetObject is Window || service.TargetObject is UserControl)
+            {
+                assembly = service.TargetObject.GetType().Assembly;
+            }
+            else
+            {
+                throw new NotSupportedException("The 'LocalResourceManager' extension can be used only on <Window> and <UserControl> elements.");
             }
 
-            return resourceManager;
+            if (string.IsNullOrEmpty(Name))
+            {
+                return ResourceManagerHelper.GetDefaultResourceManagerForAssembly(assembly)
+                    ?? throw new InvalidOperationException($"Default resource file was not found in '{assembly.GetName().Name}'.");
+            }
+            else
+            {
+                return ResourceManagerHelper.GetResourceManager(assembly, Name) 
+                    ?? throw new InvalidOperationException($"Resource file named '{Name}' was not found in '{assembly.GetName().Name}'.");
+            }
         }
     }
 }

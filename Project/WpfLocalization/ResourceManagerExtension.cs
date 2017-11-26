@@ -57,7 +57,8 @@ namespace WpfLocalization
         public string AssemblyName { get; set; }
 
         /// <summary>
-        /// The full name of the resource file including namespace and file name (e.g. "MyApplication.Properties.MyResources").
+        /// The full or partial name of the resource file including namespace and file name (e.g. "MyApplication.Properties.MyResources").
+        /// If partial name is specified then the file is expected to be located in the "Properties" (C#) or "My Project" (VB.NET) folder.
         /// </summary>
         /// <remarks>
         /// A resource file can be specified by either type or an assembly name and a resource file name.
@@ -97,16 +98,15 @@ namespace WpfLocalization
                 else
                 {
                     var assembly = AppDomain.CurrentDomain.Load(AssemblyName);
-                    type = assembly.GetType(ResourceFile, false);
-
-                    if (type == null)
-                    {
-                        throw new InvalidOperationException($"Resource file named {ResourceFile} was not found in {AssemblyName}. Make sure the full name of the resource file is specified (including namespace and file name).");
-                    }
+                    return ResourceManagerHelper.GetResourceManager(assembly, ResourceFile)
+                        ?? throw new InvalidOperationException($"Resource file named '{ResourceFile}' was not found in '{AssemblyName}'. Make sure the full name of the resource file is specified (including namespace and file name).");
                 }
             }
-
-            return ResourceManagerHelper.GetResourceManager(type);
+            else
+            {
+                return ResourceManagerHelper.GetResourceManager(type)
+                    ?? throw new InvalidOperationException($"Resource file corresponding to type '{type.FullName}' was not found.");
+            }
         }
     }
 }

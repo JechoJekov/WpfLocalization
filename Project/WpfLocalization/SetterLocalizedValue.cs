@@ -95,7 +95,7 @@ namespace WpfLocalization
                 }
             }
 
-            if (_finalConverterParameter is CallbackValueConverter callbackValueConverter)
+            if (_finalConverter is CallbackValueConverter callbackValueConverter)
             {
                 callbackValueConverter.UICulture = uiCultureInfo;
             }

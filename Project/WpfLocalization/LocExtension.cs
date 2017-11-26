@@ -242,7 +242,7 @@ namespace WpfLocalization
 
                 LocalizationManager.Add(localizedValue);
 
-                return binding;
+                return binding.ProvideValue(serviceProvider);
             }
             else if (service.TargetProperty is DependencyProperty || service.TargetProperty is PropertyInfo)
             {

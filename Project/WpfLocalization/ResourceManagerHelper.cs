@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Resources;
 using System.Text;
 using System.Windows;
+using System.Windows.Controls;
 
 namespace WpfLocalization
 {
@@ -15,6 +17,8 @@ namespace WpfLocalization
     /// </summary>
     public static class ResourceManagerHelper
     {
+        #region GetResourceManager for DependencyObject 
+
         static DependencyProperty DefaultResourceManagerProperty = DependencyProperty.RegisterAttached(
             "Localization_DefaultResourceManager",
             typeof(ResourceManager),
@@ -40,25 +44,37 @@ namespace WpfLocalization
             var resourceManager = LocalizationScope.GetResourceManager(dependencyObject);
             if (resourceManager == null)
             {
-                var window = Window.GetWindow(dependencyObject);
-
-                if (window != null)
+                if (DesignerProperties.GetIsInDesignMode(dependencyObject))
                 {
-                    var localValue = window.ReadLocalValue(DefaultResourceManagerProperty);
-                    if (localValue == DependencyProperty.UnsetValue)
+                    // Window.GetWindow returns "null" at design time
+                    return GetDefaultResourceManagerForAssembly(DesignTimeHelper.GetDesignTimeAssembly());
+                }
+                else
+                {
+                    var window = Window.GetWindow(dependencyObject);
+
+                    if (window != null)
                     {
-                        resourceManager = GetDefaultResourceManagerForAssembly(window.GetType().Assembly);
-                        window.SetValue(DefaultResourceManagerProperty, resourceManager);
-                    }
-                    else
-                    {
-                        resourceManager = localValue as ResourceManager;
+                        var localValue = window.ReadLocalValue(DefaultResourceManagerProperty);
+                        if (localValue == DependencyProperty.UnsetValue)
+                        {
+                            resourceManager = GetDefaultResourceManagerForAssembly(window.GetType().Assembly);
+                            window.SetValue(DefaultResourceManagerProperty, resourceManager);
+                        }
+                        else
+                        {
+                            resourceManager = localValue as ResourceManager;
+                        }
                     }
                 }
             }
 
             return resourceManager;
         }
+
+        #endregion
+
+        #region GetResourceManager for type 
 
         /// <summary>
         /// Maps a <see cref="Type"/> to its corresponding <see cref="ResourceManager"/>.
@@ -79,6 +95,64 @@ namespace WpfLocalization
 
             return _resourceManagerDict.GetOrAdd(type, x => new ResourceManager(x));
         }
+
+        /// <summary>
+        /// Returns the <see cref="ResourceManager"/> that corresponds to the specified type.
+        /// </summary>
+        /// <param name="typeName">Full or partial type name.</param>
+        /// <returns>
+        /// The type of the <see cref="ResourceManager"/> that corresponds to the specified type or
+        /// <c>null</c> if no such type was found.
+        /// </returns>
+        /// <remarks>
+        /// If <paramref name="typeName"/> is partial (only resource file name without extension) then
+        /// the method looks for the type in the "Properties" (C#) / "My Project" (VB.NET) folder.
+        /// </remarks>
+        internal static ResourceManager GetResourceManager(Assembly assembly, string typeName)
+        {
+            var type = GetResourceManagerType(assembly, typeName);
+            return type == null ? null : GetResourceManager(type);
+        }
+
+        /// <summary>
+        /// Returns the type of a <see cref="ResourceManager"/>.
+        /// </summary>
+        /// <param name="typeName">Full or partial type name.</param>
+        /// <returns>
+        /// The type of the <see cref="ResourceManager"/> that corresponds to the specified name or
+        /// <c>null</c> if no such type was found.
+        /// </returns>
+        /// <remarks>
+        /// If <paramref name="typeName"/> is partial (only resource file name without extension) then
+        /// the method looks for the type in the "Properties" (C#) / "My Project" (VB.NET) folder.
+        /// </remarks>
+        static Type GetResourceManagerType(Assembly assembly, string typeName)
+        {
+            if (assembly == null)
+            {
+                throw new ArgumentNullException(nameof(assembly));
+            }
+            if (string.IsNullOrEmpty(typeName))
+            {
+                throw new ArgumentNullException(nameof(typeName));
+            }
+
+            if (typeName.IndexOf('.') < 0)
+            {
+                // Partial name
+                return assembly.GetType(assembly.GetName().Name + ".Properties." + typeName, false) // C#
+                   ?? assembly.GetType(assembly.GetName().Name + "." + typeName, false); // VB.NET
+            }
+            else
+            {
+                // Full name
+                return assembly.GetType(typeName, false);
+            }
+        }
+
+        #endregion
+
+        #region GetDefaultResourceManagerForAssembly
 
         /// <summary>
         /// Maps an assembly to its default resource manager.
@@ -103,14 +177,14 @@ namespace WpfLocalization
                 return result;
             }
 
-            var resourceManagerType = assembly.GetType(assembly.GetName().Name + ".Properties.Resources", false) // C#
-                ?? assembly.GetType(assembly.GetName().Name + ".Resources", false); // VB.NET
+            var resourceManager = GetResourceManager(assembly, "Resources");
 
-            var resourceManager = resourceManagerType == null ? null : GetResourceManager(resourceManagerType);
-
+            // The type should be remembered even if it is null, which means "no default resources found".
             _defaultResourceManagerDict.TryAdd(assembly, resourceManager);
 
             return resourceManager;
         }
+
+        #endregion
     }
 }
