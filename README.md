@@ -104,8 +104,7 @@ Text_BirthDate | Votre date de naissance est le {0:d}.
 
 ## Documentation
 
-[Wiki](https://github.com/JechoJekov/WpfLocalization/wiki/)  
-[Code Project](https://www.codeproject.com/Articles/xxxxxx/Ultimate-WPF-Localization)
+[Wiki](https://github.com/JechoJekov/WpfLocalization/wiki/)
 
 
 ## Demo project
@@ -113,9 +112,13 @@ Text_BirthDate | Votre date de naissance est le {0:d}.
 [C# - WpfLocalization.Demo](https://github.com/JechoJekov/WpfLocalization/tree/master/Project/WpfLocalization.Demo)  
 [VB.NET - WpfLocalization.VBDemo](https://github.com/JechoJekov/WpfLocalization/tree/master/Project/WpfLocalization.VBDemo)
 
+
 ## License
 
 Public Domain - [Unlicense](http://unlicense.org/)
+
+*Note:* Even though the project is public domain I would appreciate if you let me know in case you use the library in an open source
+or a commercial project. I would also appreciate any suggestions and bug reports.
 
 
 ## NuGet package
