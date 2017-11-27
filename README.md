@@ -1,11 +1,12 @@
 # WpfLocalization
 
+[![Join the chat at https://gitter.im/WpfLocalization/Lobby](https://badges.gitter.im/WpfLocalization/Lobby.svg)](https://gitter.im/WpfLocalization/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 This project provides a simple, yet powerful and feature-rich way to localize a WPF application. It is focused on 
 simplicity and easy-of-use and is an alternative to the WPF localization method provided by Microsoft.
 
 The project is a replacement (a complete rewrite and redesign) of an earlier localization solution posted on 
 CodeProject in 2009 - [Advanced WPF Localization](https://www.codeproject.com/Articles/249369/Advanced-WPF-Localization).
-
 
 ## Basic usage
 
@@ -13,7 +14,7 @@ CodeProject in 2009 - [Advanced WPF Localization](https://www.codeproject.com/Ar
 This section describes basic usage only.*
 
 1. Install the WpfLocaliation package from [NuGet](https://www.nuget.org/packages/WpfLocalization)
-2. Use the `Loc` markup extension in your application.
+2. Use the `Loc` markup extension in your application
 
 ```XAML
 <Window ...>
@@ -42,7 +43,9 @@ This section describes basic usage only.*
 </Window>
 ```
 
-3. Add localized values to the default resource file created by Visual Studio (go to *Solution Explorer - Project -> Properties -> Resources* or open `Properties/Resources.resx` (C#), `My Project/Resources.resx` (VB.NET))
+3. Add localized values to the default resource file created by Visual Studio
+  (go to *Solution Explorer - Project -> Properties -> Resources* or open 
+  `Properties/Resources.resx` (C#), `My Project/Resources.resx` (VB.NET))
 
 Name | Value
 ---- | -----
@@ -83,19 +86,20 @@ Text_BirthDate | Votre date de naissance est le {0:d}.
 *Please refer to the [Wiki](https://github.com/JechoJekov/WpfLocalization/wiki/) for a complete feature list and examples.*
 
 * Supports both dependency and non-dependency properties
-* Changing the culture automatically updates all localized properties
-* Any data type for which there is a `TypeConverter` (including images, icons, fonts, colors, enumerations, margins, etc.)
+* Changing the culture at runtime automatically updates all localized properties
+  * Design-time preview of different languages
+* Supports text, images and any data type for which there is a `TypeConverter` (including fonts, colors, enumerations, margins, etc.)
 * Bindings
 * Templates
 * Styles (including setters)
 * User controls
 * Custom controls (both in themes and in code-behind)
 * Code-behind
-* Multiple resource files located in any project (assembly)
+* Multiple resource files located in any assembly
 * Mix multiple languages inside the same control, window or different windows
 * Multiple UI threads
 * High-performance (important for applications that utilize data grids or other demanding data controls)
-* Supports WPF designer in Visual Studio 2013/2015/2017
+* Supports WPF designer in Visual Studio 2013/2015/2017 including previewing different languages at design time
 
 
 ## Documentation
@@ -104,7 +108,7 @@ Text_BirthDate | Votre date de naissance est le {0:d}.
 [Code Project](https://www.codeproject.com/Articles/xxxxxx/Ultimate-WPF-Localization)
 
 
-## Sample project
+## Demo project
 
 [C# - WpfLocalization.Demo](https://github.com/JechoJekov/WpfLocalization/tree/master/Project/WpfLocalization.Demo)  
 [VB.NET - WpfLocalization.VBDemo](https://github.com/JechoJekov/WpfLocalization/tree/master/Project/WpfLocalization.VBDemo)

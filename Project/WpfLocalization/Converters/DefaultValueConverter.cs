@@ -17,6 +17,7 @@ namespace WpfLocalization.Converters
     {
         public static DefaultValueConverter Instance { get; } = new DefaultValueConverter();
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1810:InitializeReferenceTypeStaticFieldsInline")]
         static DefaultValueConverter()
         {
             // Register converters

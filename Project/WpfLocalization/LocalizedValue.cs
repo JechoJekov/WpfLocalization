@@ -168,6 +168,8 @@ namespace WpfLocalization
         /// <remarks>
         /// CAUTION This method must be called on the thread of the <see cref="TargetObject"/>'s <see cref="Dispatcher"/>
         /// </remarks>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", MessageId = "System.String.Format(System.String,System.Object)")]
         object GetOrUpdateValue(DependencyObject targetObject, bool update)
         {
             Debug.Assert(targetObject != null);

@@ -243,6 +243,7 @@ namespace WpfLocalization
             /// <remarks>
             /// CAUTION This method must be called on the <see cref="Dispatcher"/>'s thread.
             /// </remarks>
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", MessageId = "System.String.Format(System.String,System.Object)")]
             void RefreshValues(object state)
             {
                 if (state is LinkedListNode<LocalizedValue> localizedValueNode)

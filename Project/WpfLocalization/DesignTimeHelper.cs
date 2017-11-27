@@ -39,26 +39,26 @@ namespace WpfLocalization
             // The name of the assembly
             var assemblyName = assembly.GetName().Name;
 
-            if (DesignTimeAssembly_IgnoreAssemblyNameList.Any(x => assemblyName.IndexOf(x, StringComparison.InvariantCultureIgnoreCase) >= 0))
+            if (DesignTimeAssembly_IgnoreAssemblyNameList.Any(x => assemblyName.IndexOf(x, StringComparison.OrdinalIgnoreCase) >= 0))
             {
                 // Avoid Microsoft and interoperability assemblies loaded by Visual Studio
                 return true;
             }
 
-            if (string.Equals(assemblyName, "Blend", StringComparison.InvariantCultureIgnoreCase))
+            if (string.Equals(assemblyName, "Blend", StringComparison.OrdinalIgnoreCase))
             {
                 // Avoid "Blend.exe" of Expression Blend
                 return true;
             }
 
             var assemblyCompanyAttribute = (AssemblyCompanyAttribute)assembly.GetCustomAttributes(typeof(AssemblyCompanyAttribute), false).FirstOrDefault();
-            if (assemblyCompanyAttribute != null && DesignTimeAssembly_IgnoreCompanyNameList.Any(x => assemblyCompanyAttribute.Company.IndexOf(x, StringComparison.InvariantCultureIgnoreCase) >= 0))
+            if (assemblyCompanyAttribute != null && DesignTimeAssembly_IgnoreCompanyNameList.Any(x => assemblyCompanyAttribute.Company.IndexOf(x, StringComparison.OrdinalIgnoreCase) >= 0))
             {
                 // Avoid Microsoft assemblies loaded by Visual Studio
                 return true;
             }
 
-            if (false == assembly.GetReferencedAssemblies().Any(x => x.Name.Equals("PresentationFramework", StringComparison.InvariantCultureIgnoreCase)))
+            if (false == assembly.GetReferencedAssemblies().Any(x => x.Name.Equals("PresentationFramework", StringComparison.OrdinalIgnoreCase)))
             {
                 // Ignore assemblies that do not use WPF
                 return true;
@@ -96,6 +96,8 @@ namespace WpfLocalization
             }
             return _designTimeAssembly.Item1;
         }
+
+#if DEPRECATED
 
         /// <summary>
         /// Returns the assembly in which the specified dependency object is used.
@@ -154,5 +156,7 @@ namespace WpfLocalization
                 }
             }
         }
+
+#endif
     }
 }

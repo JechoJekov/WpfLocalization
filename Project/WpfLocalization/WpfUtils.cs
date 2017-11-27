@@ -30,21 +30,22 @@ namespace WpfLocalization
         /// Finds the root ancestor the specified <see cref="DependencyObject"/>.
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="dependencyObject"></param>
+        /// <param name="obj"></param>
         /// <returns>
         /// The parent or <c>null</c> if the a parent of type <typeparamref name="T"/> was not found.
         /// </returns>
-        public static DependencyObject FindRootAncestor(DependencyObject dependencyObject)
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
+        public static DependencyObject FindRootAncestor(DependencyObject obj)
         {
-            if (dependencyObject == null)
+            if (obj == null)
             {
-                throw new ArgumentNullException(nameof(dependencyObject));
+                throw new ArgumentNullException(nameof(obj));
             }
 
             DependencyObject parent;
 
             for (
-                parent = VisualTreeHelper.GetParent(dependencyObject);
+                parent = VisualTreeHelper.GetParent(obj);
                 parent != null;
                 parent = VisualTreeHelper.GetParent(parent)
                 ) ;
@@ -56,21 +57,23 @@ namespace WpfLocalization
         /// Finds the first an ancestor of type <typeparamref name="T"/> of the specified <see cref="DependencyObject"/>.
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="dependencyObject"></param>
+        /// <param name="obj"></param>
         /// <returns>
         /// The parent or <c>null</c> if the a parent of type <typeparamref name="T"/> was not found.
         /// </returns>
-        public static T FindAncestor<T>(DependencyObject dependencyObject) where T : DependencyObject
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1800:DoNotCastUnnecessarily")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
+        public static T FindAncestor<T>(DependencyObject obj) where T : DependencyObject
         {
-            if (dependencyObject == null)
+            if (obj == null)
             {
-                throw new ArgumentNullException(nameof(dependencyObject));
+                throw new ArgumentNullException(nameof(obj));
             }
 
             DependencyObject parent;
 
             for (
-                parent = VisualTreeHelper.GetParent(dependencyObject);
+                parent = VisualTreeHelper.GetParent(obj);
                 parent != null && false == parent is T;
                 parent = VisualTreeHelper.GetParent(parent)
                 ) ;

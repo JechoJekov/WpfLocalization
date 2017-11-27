@@ -22,6 +22,8 @@ namespace WpfLocalization
         /// This method simply examines the names of all sub-directories in the application's directory that are valid culture names and returns
         /// the cultures sorted in alphabetical order.
         /// </remarks>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1002:DoNotExposeGenericLists")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1026:DefaultParametersShouldNotBeUsed")]
         public static List<CultureInfo> GetAvailableLanguages(string defaultLanguageCultureName = null)
         {
             return GetAvailableLanguages(defaultLanguageCultureName == null ? null : CultureInfo.GetCultureInfo(defaultLanguageCultureName));
@@ -36,6 +38,8 @@ namespace WpfLocalization
         /// This method simply examines the names of all sub-directories in the application's directory that are valid culture names and returns
         /// the cultures sorted in alphabetical order. The default culture is at the top.
         /// </remarks>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1002:DoNotExposeGenericLists")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1026:DefaultParametersShouldNotBeUsed")]
         public static List<CultureInfo> GetAvailableLanguages(CultureInfo defaultCulture = null)
         {
             var directoryPath = AppDomain.CurrentDomain.BaseDirectory;

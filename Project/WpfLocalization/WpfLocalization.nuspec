@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <id>$id$</id>
+        <version>$version$</version>
+        <title>$title$</title>
+        <authors>Jecho Jekov</authors>
+        <owners>Jecho Jekov</owners>
+        <licenseUrl>https://github.com/JechoJekov/WpfLocalization/blob/master/LICENSE</licenseUrl>
+        <projectUrl>https://github.com/JechoJekov/WpfLocalization</projectUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <summary>Provides a simple, yet powerful and feature-rich way to localize a WPF application.</summary>
+        <description>
+            <![CDATA[Provides a simple, yet powerful and feature-rich way to localize a WPF application. It is focused on simplicity and easy-of-use and is an alternative to the WPF localization method provided by Microsoft.
+
+This library is a replacement (a complete rewrite and redesign) of an earlier localization solution posted on CodeProject in 2009 - Advanced WPF Localization (https://codeproject.com/Articles/249369/Advanced-WPF-Localization).
+
+Documentation:
+https://github.com/JechoJekov/WpfLocalization/wiki
+https://github.com/JechoJekov/WpfLocalization/blob/master/README.md
+
+Demo project:
+https://github.com/JechoJekov/WpfLocalization/wiki/Demo-project
+]]>
+        </description>
+        <releaseNotes>A complete redesign and rewrite of the previous extension published on Code Project (https://codeproject.com/Articles/249369/Advanced-WPF-Localization) in 2009. Backward compatible for simple cases. Non-backward compatible for bindings and code-behind usage.</releaseNotes>
+        <tags>WPF localization globalization translate translation language xaml markupextension extension resource resourcemanager</tags>
+        <references>
+            <reference file="WpfLocalization.dll" />
+        </references>
+    </metadata>
+    <files>
+        <file src="bin\$configuration$\$id$.*" target="lib\net40\" />
+    </files>
+</package>

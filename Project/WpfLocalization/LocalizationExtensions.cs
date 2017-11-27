@@ -20,73 +20,73 @@ namespace WpfLocalization
         /// <summary>
         /// Returns an object that can be used to localize the specified property of the specified <see cref="DependencyObject"/>.
         /// </summary>
-        /// <param name="depObj">The owner of the property.</param>
-        /// <param name="property">The property to localize.</param>
+        /// <param name="obj">The owner of the property.</param>
+        /// <param name="dependencyProperty">The property to localize.</param>
         /// <returns></returns>
-        /// <exception cref="ArgumentNullException"><paramref name="depObj"/> or <see cref="property"/> or null.</exception>
-        public static LocalizableProperty Property(this DependencyObject depObj, DependencyProperty property)
+        /// <exception cref="ArgumentNullException"><paramref name="obj"/> or <paramref name="dependencyProperty"/> or null.</exception>
+        public static LocalizableProperty Property(this DependencyObject obj, DependencyProperty dependencyProperty)
         {
-            if (depObj == null)
+            if (obj == null)
             {
-                throw new ArgumentNullException(nameof(depObj));
+                throw new ArgumentNullException(nameof(obj));
             }
-            if (property == null)
+            if (dependencyProperty == null)
             {
-                throw new ArgumentNullException(nameof(property));
+                throw new ArgumentNullException(nameof(dependencyProperty));
             }
 
-            return new LocalizableProperty(depObj, new LocalizedDepProperty(property));
+            return new LocalizableProperty(obj, new LocalizedDepProperty(dependencyProperty));
         }
 
         /// <summary>
         /// Returns an object that can be used to localize the specified property of the specified <see cref="DependencyObject"/>.
         /// </summary>
-        /// <param name="depObj">The owner of the property.</param>
-        /// <param name="property">The property to localize.</param>
+        /// <param name="obj">The owner of the property.</param>
+        /// <param name="propertyInfo">The property to localize.</param>
         /// <returns></returns>
-        /// <exception cref="ArgumentNullException"><paramref name="depObj"/> or <see cref="property"/> or null.</exception>
-        public static LocalizableProperty Property(this DependencyObject depObj, PropertyInfo property)
+        /// <exception cref="ArgumentNullException"><paramref name="obj"/> or <paramref name="propertyInfo"/> or null.</exception>
+        public static LocalizableProperty Property(this DependencyObject obj, PropertyInfo propertyInfo)
         {
-            if (depObj == null)
+            if (obj == null)
             {
-                throw new ArgumentNullException(nameof(depObj));
+                throw new ArgumentNullException(nameof(obj));
             }
-            if (property == null)
+            if (propertyInfo == null)
             {
-                throw new ArgumentNullException(nameof(property));
+                throw new ArgumentNullException(nameof(propertyInfo));
             }
 
-            return new LocalizableProperty(depObj, new LocalizedNonDepProperty(property));
+            return new LocalizableProperty(obj, new LocalizedNonDepProperty(propertyInfo));
         }
 
         /// <summary>
         /// Returns an object that can be used to localize the specified property of the specified <see cref="DependencyObject"/>.
         /// </summary>
-        /// <param name="depObj">The owner of the property.</param>
+        /// <param name="obj">The owner of the property.</param>
         /// <param name="propertyName">The name of the property to localize.</param>
         /// <returns></returns>
-        /// <exception cref="ArgumentNullException"><paramref name="depObj"/> is null or <see cref="propertyName"/> or null or empty.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="obj"/> is null or <see cref="propertyName"/> or null or empty.</exception>
         /// <exception cref="ArgumentOutOfRangeException">
         /// A dependency or a non-dependency property named <paramref name="propertyName"/> was not found.
         /// </exception>
-        public static LocalizableProperty Property(this DependencyObject depObj, string propertyName)
+        public static LocalizableProperty Property(this DependencyObject obj, string propertyName)
         {
-            if (depObj == null)
+            if (obj == null)
             {
-                throw new ArgumentNullException(nameof(depObj));
+                throw new ArgumentNullException(nameof(obj));
             }
             if (string.IsNullOrEmpty(propertyName))
             {
                 throw new ArgumentNullException(nameof(propertyName));
             }
 
-            if (DependencyPropertyDescriptor.FromName(propertyName, depObj.GetType(), depObj.GetType()) is DependencyPropertyDescriptor depProperty)
+            if (DependencyPropertyDescriptor.FromName(propertyName, obj.GetType(), obj.GetType()) is DependencyPropertyDescriptor depProperty)
             {
-                return new LocalizableProperty(depObj, new LocalizedDepProperty(depProperty.DependencyProperty));
+                return new LocalizableProperty(obj, new LocalizedDepProperty(depProperty.DependencyProperty));
             }
-            else if (depObj.GetType().GetProperty(propertyName) is PropertyInfo propertyInfo)
+            else if (obj.GetType().GetProperty(propertyName) is PropertyInfo propertyInfo)
             {
-                return new LocalizableProperty(depObj, new LocalizedNonDepProperty(propertyInfo));
+                return new LocalizableProperty(obj, new LocalizedNonDepProperty(propertyInfo));
             }
             else
             {
@@ -162,6 +162,7 @@ namespace WpfLocalization
         /// <param name="property"></param>
         /// <param name="stringFormat"></param>
         /// <param name="bindings"></param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1720:IdentifiersShouldNotContainTypeNames", MessageId = "string")]
         public static void Format(this LocalizableProperty property, string stringFormat, params BindingBase[] bindings)
         {
             Format(property, stringFormat, (IList<BindingBase>)bindings);
@@ -173,6 +174,7 @@ namespace WpfLocalization
         /// <param name="property"></param>
         /// <param name="stringFormat"></param>
         /// <param name="bindings"></param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1720:IdentifiersShouldNotContainTypeNames", MessageId = "string")]
         public static void Format(this LocalizableProperty property, string stringFormat, IList<BindingBase> bindings)
         {
             var localizedValue = new LocalizedValue(property.TargetObject, property.TargetProperty)
@@ -203,6 +205,7 @@ namespace WpfLocalization
         /// </summary>
         /// <param name="property"></param>
         /// <param name="callbackParameter"></param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1719:ParameterNamesShouldNotMatchMemberNames", MessageId = "1#")]
         public static void Callback(this LocalizableProperty property, LocalizationCallback callback, object callbackParameter)
         {
             var localizedValue = new LocalizedValue(property.TargetObject, property.TargetProperty)
@@ -219,6 +222,7 @@ namespace WpfLocalization
         /// </summary>
         /// <param name="property"></param>
         /// <param name="callbackParameter"></param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1720:IdentifiersShouldNotContainTypeNames", MessageId = "string")]
         public static void CallbackFormat(this LocalizableProperty property, LocalizationCallback callback, object callbackParameter, string stringFormat)
         {
             CallbackFormat(property, callback, callbackParameter, stringFormat, null);
@@ -229,6 +233,7 @@ namespace WpfLocalization
         /// </summary>
         /// <param name="property"></param>
         /// <param name="callbackParameter"></param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1720:IdentifiersShouldNotContainTypeNames", MessageId = "string")]
         public static void CallbackFormat(this LocalizableProperty property, LocalizationCallback callback, object callbackParameter, string stringFormat, BindingBase binding)
         {
             var localizedValue = new LocalizedValue(property.TargetObject, property.TargetProperty)
@@ -274,6 +279,8 @@ namespace WpfLocalization
 
         #endregion
 
+        #region Remove
+
         /// <summary>
         /// Removes the localization from the specified property.
         /// </summary>
@@ -287,5 +294,67 @@ namespace WpfLocalization
         {
             LocalizationManager.RemoveProperty(property.TargetObject, property.TargetProperty);
         }
+
+        #endregion
+
+        #region Resources
+
+        /// <summary>
+        /// Returns the specified resource based on the current culture of the specified object.
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="resourceKey"></param>
+        /// <returns></returns>
+        /// <remarks>
+        /// <para>
+        /// This method respects the resources and culture set via the <see cref="LocalizationScope.ResourceManager"/> 
+        /// and <see cref="LocalizationScope.UICulture"/> attached properties when retrieving the resource.
+        /// </para>
+        /// <para>
+        /// This method is thread-safe.
+        /// </para>
+        /// </remarks>
+        public static object GetResource(this DependencyObject obj, string resourceKey)
+        {
+            if (obj == null)
+            {
+                throw new ArgumentNullException(nameof(obj));
+            }
+
+            var dispatcher = obj.Dispatcher;
+            var uiCultureInfo = LocalizationScope.GetUICulture(obj) ?? dispatcher.Thread.CurrentUICulture;
+
+            var resourceManager = ResourceManagerHelper.GetResourceManager(obj);
+            if (resourceManager == null)
+            {
+                return null;
+            }
+            else
+            {
+                return resourceManager.GetString(resourceKey, uiCultureInfo) ?? resourceManager.GetObject(resourceKey, uiCultureInfo);
+            }
+        }
+
+        /// <summary>
+        /// Returns the specified resource based on the current culture of the specified object.
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="resourceKey"></param>
+        /// <returns></returns>
+        /// <remarks>
+        /// <para>
+        /// This method respects the resources and culture set via the <see cref="LocalizationScope.ResourceManager"/> 
+        /// and <see cref="LocalizationScope.UICulture"/> attached properties when retrieving the resource.
+        /// </para>
+        /// <para>
+        /// This method is thread-safe.
+        /// </para>
+        /// </remarks>
+        public static T GetResource<T>(this DependencyObject obj, string resourceKey) where T : class
+        {
+            return (T)GetResource(obj, resourceKey);
+        }
+
+        #endregion
     }
 }

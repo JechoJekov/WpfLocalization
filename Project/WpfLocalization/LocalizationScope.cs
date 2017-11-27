@@ -36,17 +36,32 @@ namespace WpfLocalization
 
         public static CultureInfo GetCulture(DependencyObject obj)
         {
+            if (obj == null)
+            {
+                throw new ArgumentNullException(nameof(obj));
+            }
+
             return (CultureInfo)obj.GetValue(CultureProperty);
         }
 
         public static void SetCulture(DependencyObject obj, CultureInfo value)
         {
+            if (obj == null)
+            {
+                throw new ArgumentNullException(nameof(obj));
+            }
+
             obj.SetValue(CultureProperty, value);
         }
 
-        static void OnCultureChanged(DependencyObject depObj, DependencyPropertyChangedEventArgs e)
+        static void OnCultureChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
         {
-            LocalizationManager.RefreshValues(depObj.Dispatcher);
+            if (obj == null)
+            {
+                throw new ArgumentNullException(nameof(obj));
+            }
+
+            LocalizationManager.RefreshValues(obj.Dispatcher);
         }
 
         #endregion
@@ -73,17 +88,32 @@ namespace WpfLocalization
 
         public static CultureInfo GetUICulture(DependencyObject obj)
         {
+            if (obj == null)
+            {
+                throw new ArgumentNullException(nameof(obj));
+            }
+
             return (CultureInfo)obj.GetValue(UICultureProperty);
         }
 
         public static void SetUICulture(DependencyObject obj, CultureInfo value)
         {
+            if (obj == null)
+            {
+                throw new ArgumentNullException(nameof(obj));
+            }
+
             obj.SetValue(UICultureProperty, value);
         }
 
-        static void OnUICultureChanged(DependencyObject depObj, DependencyPropertyChangedEventArgs e)
+        static void OnUICultureChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
         {
-            LocalizationManager.RefreshValues(depObj.Dispatcher);
+            if (obj == null)
+            {
+                throw new ArgumentNullException(nameof(obj));
+            }
+
+            LocalizationManager.RefreshValues(obj.Dispatcher);
         }
 
         #endregion
@@ -110,17 +140,32 @@ namespace WpfLocalization
 
         public static ResourceManager GetResourceManager(DependencyObject obj)
         {
+            if (obj == null)
+            {
+                throw new ArgumentNullException(nameof(obj));
+            }
+
             return (ResourceManager)obj.GetValue(ResourceManagerProperty);
         }
 
         public static void SetResourceManager(DependencyObject obj, ResourceManager value)
         {
+            if (obj == null)
+            {
+                throw new ArgumentNullException(nameof(obj));
+            }
+
             obj.SetValue(ResourceManagerProperty, value);
         }
 
-        static void OnResourceManagerChanged(DependencyObject depObj, DependencyPropertyChangedEventArgs e)
+        static void OnResourceManagerChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
         {
-            LocalizationManager.RefreshValues(depObj.Dispatcher);
+            if (obj == null)
+            {
+                throw new ArgumentNullException(nameof(obj));
+            }
+
+            LocalizationManager.RefreshValues(obj.Dispatcher);
         }
 
         #endregion

@@ -35,6 +35,8 @@ namespace WpfLocalization
         /// <summary>
         /// The localized value.
         /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
         public object Value
         {
             get
@@ -65,6 +67,7 @@ namespace WpfLocalization
         /// Returns the localized value.
         /// </summary>
         /// <returns></returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", MessageId = "System.String.Format(System.String,System.Object)")]
         object GetValue(Type targetPropertyType)
         {
             Debug.Assert(targetPropertyType != null);

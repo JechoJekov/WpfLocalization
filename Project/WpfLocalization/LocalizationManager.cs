@@ -23,6 +23,7 @@ namespace WpfLocalization
         /// Provides binding support for the static *Culture properties of this type.
         /// </summary>
         /// <exception cref="InvalidOperationException">The property is not accessed from a UI thread.</exception>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2211:NonConstantFieldsShouldNotBeVisible")]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static LocalizationManagerCulture Cultures = new LocalizationManagerCulture();
 
@@ -464,6 +465,7 @@ namespace WpfLocalization
         /// <param name="start">The main method of the thread.</param>
         /// <param name="threadName">The name of the thread.</param>
         /// <returns>The newly created thread.</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1026:DefaultParametersShouldNotBeUsed")]
         public static Thread SpawnUIThread(ThreadStart start, string threadName = null)
         {
             var thread = new Thread(start)
@@ -484,6 +486,7 @@ namespace WpfLocalization
         /// <param name="start">The main method of the thread.</param>
         /// <param name="threadName">The name of the thread.</param>
         /// <returns>The newly created thread.</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1026:DefaultParametersShouldNotBeUsed")]
         public static Thread SpawnUIThread(ParameterizedThreadStart start, object state, string threadName = null)
         {
             var thread = new Thread(start)
@@ -506,6 +509,8 @@ namespace WpfLocalization
         /// </summary>
         /// <param name="value"></param>
         /// <exception cref="InvalidOperationException">The method is not called on the UI thread of <see cref="LocalizedValueBase.TargetObject"/>.</exception>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA2204:Literals should be spelled correctly", MessageId = "DependencyObject")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", MessageId = "System.String.Format(System.String,System.Object)")]
         internal static void Add(LocalizedValue value)
         {
             if (value == null)
@@ -524,7 +529,7 @@ namespace WpfLocalization
             if (false == dispatcher.CheckAccess())
             {
                 // COMMENT This restriction can be lifted if the DispatcherHandler.Add method becomes thread-safe
-                throw new InvalidOperationException("This method must be called on the UI thread of the DependencyObject whose value is localized.");
+                throw new InvalidOperationException($"This method must be called on the UI thread of the {nameof(DependencyObject)} whose value is localized.");
             }
 
             GetOrCreateDispatcherHander(dispatcher).Add(value);
@@ -535,6 +540,8 @@ namespace WpfLocalization
         /// </summary>
         /// <param name="value"></param>
         /// <exception cref="InvalidOperationException">The method is not called on the UI thread of <see cref="LocalizedValueBase.TargetObject"/>.</exception>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA2204:Literals should be spelled correctly", MessageId = "DependencyObject")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", MessageId = "System.String.Format(System.String,System.Object)")]
         internal static void Add(SetterLocalizedValue value)
         {
             if (value == null)
@@ -553,7 +560,7 @@ namespace WpfLocalization
             if (false == dispatcher.CheckAccess())
             {
                 // COMMENT This restriction can be lifted if the DispatcherHandler.Add method becomes thread-safe
-                throw new InvalidOperationException("This method must be called on the UI thread of the DependencyObject whose value is localized.");
+                throw new InvalidOperationException($"This method must be called on the UI thread of the {nameof(DependencyObject)} whose value is localized.");
             }
 
             GetOrCreateDispatcherHander(dispatcher).Add(value);
@@ -565,6 +572,8 @@ namespace WpfLocalization
         /// <param name="targetObject">The owner of the property</param>
         /// <param name="property"></param>
         /// <exception cref="InvalidOperationException">The method is not called on the UI thread of the specified <see cref="DependencyObject"/>.</exception>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA2204:Literals should be spelled correctly", MessageId = "DependencyObject")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", MessageId = "System.String.Format(System.String,System.Object)")]
         internal static void RemoveProperty(DependencyObject targetObject, LocalizedProperty targetProperty)
         {
             if (targetObject == null)
@@ -579,7 +588,7 @@ namespace WpfLocalization
             if (false == targetObject.Dispatcher.CheckAccess())
             {
                 // COMMENT This restriction can be lifted if the DispatcherHandler.Add method becomes thread-safe
-                throw new InvalidOperationException("This method must be called on the UI thread of the DependencyObject whose value is localized.");
+                throw new InvalidOperationException($"This method must be called on the UI thread of the {nameof(DependencyObject)} whose value is localized.");
             }
 
             GetDispatcherHandler(targetObject.Dispatcher)?.RemoveProperty(targetObject, targetProperty);

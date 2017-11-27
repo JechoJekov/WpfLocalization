@@ -26,6 +26,11 @@ namespace WpfLocalization
 
         public override object ProvideValue(IServiceProvider serviceProvider)
         {
+            if (serviceProvider == null)
+            {
+                throw new ArgumentNullException(nameof(serviceProvider));
+            }
+
             if (string.IsNullOrEmpty(Name))
             {
                 return null;

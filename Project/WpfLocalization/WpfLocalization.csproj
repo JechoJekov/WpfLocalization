@@ -20,6 +20,8 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -28,6 +30,12 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>WpfLocalization.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="PresentationCore" />
@@ -48,6 +56,7 @@
     <Compile Include="Converters\CallbackValueConverter.cs" />
     <Compile Include="Converters\MultiToSingleValueConverter.cs" />
     <Compile Include="DesignTimeHelper.cs" />
+    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="LocalizableProperty.cs" />
     <Compile Include="Converters\BitmapSourceConverter.cs" />
     <Compile Include="Converters\DefaultValueConverter.cs" />
@@ -73,6 +82,11 @@
     <Compile Include="StringExtensions.cs" />
     <Compile Include="TypeUtils.cs" />
     <Compile Include="WpfUtils.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+    <None Include="WpfLocalization.nuspec" />
+    <None Include="WpfLocalization.snk" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

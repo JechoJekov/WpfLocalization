@@ -33,7 +33,7 @@ namespace WpfLocalization.Converters
 
             if (localizedValue.Callback == null)
             {
-                throw new ArgumentNullException(nameof(LocalizedValue.Callback));
+                throw new ArgumentException("The callback cannot be null.", nameof(localizedValue));
             }
         }
 

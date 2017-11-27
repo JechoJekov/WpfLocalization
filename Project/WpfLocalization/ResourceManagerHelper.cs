@@ -29,29 +29,29 @@ namespace WpfLocalization
         /// <summary>
         /// Determines the <see cref="ResourceManager"/> to use for the specified <see cref="DependencyObject"/>.
         /// </summary>
-        /// <param name="dependencyObject"></param>
+        /// <param name="obj"></param>
         /// <returns></returns>
         /// <exception cref="InvalidOperationException">The method is not called on the UI thread of the specified <see cref="DependencyObject"/>.</exception>
-        public static ResourceManager GetResourceManager(DependencyObject dependencyObject)
+        public static ResourceManager GetResourceManager(DependencyObject obj)
         {
-            if (dependencyObject == null)
+            if (obj == null)
             {
-                throw new ArgumentNullException(nameof(dependencyObject));
+                throw new ArgumentNullException(nameof(obj));
             }
 
-            dependencyObject.VerifyAccess();
+            obj.VerifyAccess();
 
-            var resourceManager = LocalizationScope.GetResourceManager(dependencyObject);
+            var resourceManager = LocalizationScope.GetResourceManager(obj);
             if (resourceManager == null)
             {
-                if (DesignerProperties.GetIsInDesignMode(dependencyObject))
+                if (DesignerProperties.GetIsInDesignMode(obj))
                 {
                     // Window.GetWindow returns "null" at design time
                     return GetDefaultResourceManagerForAssembly(DesignTimeHelper.GetDesignTimeAssembly());
                 }
                 else
                 {
-                    var window = Window.GetWindow(dependencyObject);
+                    var window = Window.GetWindow(obj);
 
                     if (window != null)
                     {
@@ -105,7 +105,7 @@ namespace WpfLocalization
         {
             Debug.Assert(type != null);
 
-            if (type.Namespace.EndsWith("My.Resources"))
+            if (type.Namespace.EndsWith("My.Resources", StringComparison.OrdinalIgnoreCase))
             {
                 // The resource file is located in "My Projects" of a VB.NET assembly. "ResourceManager" is unable to use
                 // the type to determine the name of the resources.

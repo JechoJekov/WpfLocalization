@@ -25,6 +25,7 @@ namespace WpfLocalization
     /// <returns></returns>
     public delegate object LocalizationCallback(CultureInfo culture, CultureInfo uiCulture, object parameter, object dataBindingValue);
 
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Loc")]
     [ContentProperty("Bindings")]
     [MarkupExtensionReturnType(typeof(object))]
     public class LocExtension : MarkupExtension
@@ -118,8 +119,15 @@ namespace WpfLocalization
             this.Key = key;
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", MessageId = "System.String.Format(System.String,System.Object)")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA2204:Literals should be spelled correctly", MessageId = "DependencyObject")]
         public override object ProvideValue(IServiceProvider serviceProvider)
         {
+            if (serviceProvider == null)
+            {
+                throw new ArgumentNullException(nameof(serviceProvider));
+            }
+
             // Other useful services:
             // - IDestinationTypeProvider
             // - IRootObjectProvider
@@ -207,9 +215,9 @@ namespace WpfLocalization
 
                 Debug.Assert(rootObject != null);
 
+#if DEPRECATED // Unfortunately "GetDestinationType" throws NullReferenceException therefore, this approach is not applicable for retrieving the property's type
                 var destinationTypeProvider = (IDestinationTypeProvider)serviceProvider.GetService(typeof(IDestinationTypeProvider));
 
-#if DEPRECATED // Unfortunately "GetDestinationType" throws NullReferenceException therefore, this approach is not applicable for retrieving the property's type
                 Debug.Assert(destinationTypeProvider != null);
 
                 var targetPropertyType = destinationTypeProvider.GetDestinationType();

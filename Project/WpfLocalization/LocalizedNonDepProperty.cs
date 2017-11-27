@@ -32,9 +32,9 @@ namespace WpfLocalization
             this.Property = property ?? throw new ArgumentNullException(nameof(property));
         }
 
-        internal protected override void SetValue(DependencyObject dependencyObject, object value)
+        internal protected override void SetValue(DependencyObject obj, object value)
         {
-            Property.SetValue(dependencyObject, value, null);
+            Property.SetValue(obj, value, null);
         }
 
         public override bool Equals(object obj)

@@ -21,7 +21,14 @@ namespace WpfLocalization.Converters
 
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            return _valueConverter.Convert(values[0], targetType, parameter, culture);
+            if (values == null || values.Length == 0)
+            {
+                return TypeUtils.GetDefaultValue(targetType);
+            }
+            else
+            {
+                return _valueConverter.Convert(values[0], targetType, parameter, culture);
+            }
         }
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)

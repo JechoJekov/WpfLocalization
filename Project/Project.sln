@@ -9,13 +9,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfLocalization.Demo", "Wpf
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfLocalization.Demo.Controls", "WpfLocalization.Demo.Controls\WpfLocalization.Demo.Controls.csproj", "{79E7CAB0-A278-4BBB-9DE1-600B87E8F10B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfLocalization.Demo.Windows", "WpfLocalization.Demo.Windows\WpfLocalization.Demo.Windows.csproj", "{5F60A385-BA78-4F47-82BE-00C068A26DB7}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfLocalization.Demo.UserControls", "WpfLocalization.Demo.UserControls\WpfLocalization.Demo.UserControls.csproj", "{0F5FE02D-6F62-4CC2-A3BC-29D5735BB188}"
 EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "WpfLocalization.VBDemo", "WpfLocalization.VBDemo\WpfLocalization.VBDemo.vbproj", "{C69E8BFA-3BFB-4E9E-9283-E6808D540B58}"
 EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "WpfLocalization.VBDemo.UserControls", "WpfLocalization.VBDemo.UserControls\WpfLocalization.VBDemo.UserControls.vbproj", "{05E09EF0-9FC5-475D-9CC5-05D920E3DCC3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfLocalization.Demo.Windows", "WpfLocalization.Demo.Windows\WpfLocalization.Demo.Windows.csproj", "{5F60A385-BA78-4F47-82BE-00C068A26DB7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,10 +35,6 @@ Global
 		{79E7CAB0-A278-4BBB-9DE1-600B87E8F10B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{79E7CAB0-A278-4BBB-9DE1-600B87E8F10B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{79E7CAB0-A278-4BBB-9DE1-600B87E8F10B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5F60A385-BA78-4F47-82BE-00C068A26DB7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5F60A385-BA78-4F47-82BE-00C068A26DB7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5F60A385-BA78-4F47-82BE-00C068A26DB7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5F60A385-BA78-4F47-82BE-00C068A26DB7}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0F5FE02D-6F62-4CC2-A3BC-29D5735BB188}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{0F5FE02D-6F62-4CC2-A3BC-29D5735BB188}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0F5FE02D-6F62-4CC2-A3BC-29D5735BB188}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -51,6 +47,10 @@ Global
 		{05E09EF0-9FC5-475D-9CC5-05D920E3DCC3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{05E09EF0-9FC5-475D-9CC5-05D920E3DCC3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{05E09EF0-9FC5-475D-9CC5-05D920E3DCC3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5F60A385-BA78-4F47-82BE-00C068A26DB7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5F60A385-BA78-4F47-82BE-00C068A26DB7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5F60A385-BA78-4F47-82BE-00C068A26DB7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5F60A385-BA78-4F47-82BE-00C068A26DB7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

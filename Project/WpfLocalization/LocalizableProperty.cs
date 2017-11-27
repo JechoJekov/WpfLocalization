@@ -9,6 +9,7 @@ namespace WpfLocalization
     /// <summary>
     /// Represents a property that can be localized.
     /// </summary>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1815:OverrideEqualsAndOperatorEqualsOnValueTypes")]
     public struct LocalizableProperty
     {
         /// <summary>
