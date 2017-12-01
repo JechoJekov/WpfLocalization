@@ -103,7 +103,7 @@ namespace WpfLocalization.Demo.Controls
             var labelWelcomeMessage = this.Template.FindName("labelWelcomeMessage", this) as TextBlock;
 
             // Localize the value in code-behind
-            labelWelcomeMessage.Property(TextBlock.TextProperty).ResourceFormat(
+            labelWelcomeMessage.Property(TextBlock.TextProperty).BindingResourceFormat(
                 "Text_Welcome",
                 new Binding(nameof(FirstName))
                 {

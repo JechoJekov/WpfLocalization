@@ -8,14 +8,19 @@ using System.Windows;
 namespace WpfLocalization
 {
     /// <summary>
-    /// Represents a non-localized dependency property.
+    /// Represents a non-dependency property that can be localized.
     /// </summary>
-    class LocalizedNonDepProperty : LocalizedProperty
+    class LocalizableNonDepProperty : LocalizableProperty
     {
         /// <summary>
         /// Gets the type of the property's value.
         /// </summary>
         public override Type PropertyType => Property.PropertyType;
+
+        /// <summary>
+        /// The object that represents the property (e.g. <see cref="DependencyProperty"/> or <see cref="PropertyInfo"/>).
+        /// </summary>
+        protected internal override object PropertyObject => Property;
 
         /// <summary>
         /// The property.
@@ -27,7 +32,7 @@ namespace WpfLocalization
         /// </summary>
         public override object DefaultValue => TypeUtils.GetDefaultValue(Property.PropertyType);
 
-        public LocalizedNonDepProperty(PropertyInfo property)
+        public LocalizableNonDepProperty(PropertyInfo property)
         {
             this.Property = property ?? throw new ArgumentNullException(nameof(property));
         }
@@ -39,7 +44,7 @@ namespace WpfLocalization
 
         public override bool Equals(object obj)
         {
-            return obj is LocalizedNonDepProperty other && other.Property == this.Property;
+            return obj is LocalizableNonDepProperty other && other.Property == this.Property;
         }
 
         public override int GetHashCode()

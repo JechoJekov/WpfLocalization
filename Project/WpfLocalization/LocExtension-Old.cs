@@ -45,11 +45,19 @@ namespace WpfLocalization
         /// <summary>
         /// A method to call to obtain the value or transform a value returned by the data binding.
         /// </summary>
+        /// <remarks>
+        /// CAUTION Specifying both a <see cref="Callback"/> and a <see cref="Converter"/> is not supported.
+        /// If such case the <see cref="Converter"/> is ignored.
+        /// </remarks>
         public LocalizationCallback Callback { get; set; }
 
         /// <summary>
         /// The parameter to pass to the callback.
         /// </summary>
+        /// <remarks>
+        /// CAUTION Specifying both a <see cref="Callback"/> and a <see cref="Converter"/> is not supported.
+        /// If such case the <see cref="Converter"/> is ignored.
+        /// </remarks>
         public object CallbackParameter { get; set; }
 
         #endregion
@@ -87,11 +95,19 @@ namespace WpfLocalization
         /// <summary>
         /// The converter to use to convert the value before it is assigned to the property.
         /// </summary>
+        /// <remarks>
+        /// CAUTION Specifying both a <see cref="Callback"/> and a <see cref="Converter"/> is not supported.
+        /// If such case the <see cref="Converter"/> is ignored.
+        /// </remarks>
         public IValueConverter Converter { get; set; }
 
         /// <summary>
         /// The parameter to pass to the converter.
         /// </summary>
+        /// <remarks>
+        /// CAUTION Specifying both a <see cref="Callback"/> and a <see cref="Converter"/> is not supported.
+        /// If such case the <see cref="Converter"/> is ignored.
+        /// </remarks>
         public object ConverterParameter { get; set; }
 
         #endregion
@@ -103,8 +119,6 @@ namespace WpfLocalization
             this.Key = key;
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA2204:Literals should be spelled correctly", MessageId = "UserControl")]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA2204:Literals should be spelled correctly", MessageId = "ResourceDictionary")]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", MessageId = "System.String.Format(System.String,System.Object)")]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA2204:Literals should be spelled correctly", MessageId = "DependencyObject")]
         public override object ProvideValue(IServiceProvider serviceProvider)
@@ -136,104 +150,137 @@ namespace WpfLocalization
                     }
                 }
 
-                LocalizableProperty localizableProperty;
+                LocalizedProperty localizedProperty;
 
                 if (service.TargetProperty is DependencyProperty depProperty)
                 {
-                    localizableProperty = new LocalizableDepProperty(depProperty);
+                    localizedProperty = new LocalizedDepProperty(depProperty);
                 }
                 else if (service.TargetProperty is PropertyInfo propertyInfo)
                 {
-                    localizableProperty = new LocalizableNonDepProperty(propertyInfo);
+                    localizedProperty = new LocalizedNonDepProperty(propertyInfo);
                 }
                 else
                 {
-                    throw new NotSupportedException($"The extension supports only dependency and non-dependency properties of dependency objects. Properties of type {service.TargetProperty.GetType()} are not supported.");
+                    throw new NotSupportedException($"The default property provider supports only dependency and non-dependency properties of dependency objects. Properties of type {service.TargetProperty.GetType()} are not supported.");
                 }
 
-                var options = new LocalizationOptions()
+                var localizedValue = new LocalizedValue(depObj, localizedProperty)
                 {
-                    Key = Key,
-                    StringFormat = StringFormat,
-                    Binding = Binding,
-                    Bindings = _bindings,
-                    Callback = Callback,
-                    CallbackParameter = CallbackParameter,
-                    Converter = Converter,
-                    ConverterParameter = ConverterParameter,
+                    Key = this.Key,
+                    StringFormat = this.StringFormat,
+                    Callback = this.Callback,
+                    CallbackParameter = this.CallbackParameter,
+                    Binding = this.Binding,
+                    Bindings = this._bindings,
+                    Converter = this.Converter,
+                    ConverterParameter = this.ConverterParameter,
                 };
-
-                var localizedValue = LocalizedValue.Create(new DependencyObjectProperty(depObj, localizableProperty), options);
 
                 LocalizationManager.Add(localizedValue);
 
-                if (localizedValue.BindingExpression != null)
+                if (localizedValue.IsInDesignMode)
                 {
-                    // The value uses bindings
-                    return localizedValue.BindingExpression;
+                    // At design time VS designer does not set the parent of any control
+                    // before its properties are set. For this reason the correct values
+                    // of inherited attached properties cannot be obtained.
+                    // Therefore, to display the correct localized value it must be updated
+                    // later after the parent of the control has been set.
+
+                    depObj.Dispatcher.BeginInvoke(
+                        DispatcherPriority.ApplicationIdle,
+                        new SendOrPostCallback(x => ((LocalizedValue)x).UpdateValue()),
+                        localizedValue
+                        );
+
+                    return localizedProperty.DefaultValue;
                 }
                 else
                 {
-                    // The value does not use bindings
-
-                    if (localizedValue.IsInDesignMode)
-                    {
-                        // At design time VS designer does not set the parent of any control
-                        // before its properties are set. For this reason the correct values
-                        // of inherited attached properties cannot be obtained.
-                        // Therefore, to display the correct localized value it must be updated
-                        // later after the parent of the control has been set.
-
-                        depObj.Dispatcher.BeginInvoke(
-                            DispatcherPriority.ApplicationIdle,
-                            new SendOrPostCallback(x => ((LocalizedValue)x).UpdateValue()),
-                            localizedValue
-                            );
-
-                        return localizableProperty.DefaultValue;
-                    }
-                    else
-                    {
-                        return localizedValue.ProduceValue();
-                    }
+                    return localizedValue.GetValue(depObj);
                 }
             }
             else if (service.TargetObject is Setter)
             {
+                /* // DEPRECATED
+                if (Binding != null || _bindings?.Count > 0)
+                {
+                    throw new NotSupportedException("Bindings are not supported in style setters.");
+                }
+                */
+
                 var rootObjectProvider = (IRootObjectProvider)serviceProvider.GetService(typeof(IRootObjectProvider));
 
-                // IRootObjectProvider is never null
-                // IRootObjectProvider.RootObject is null when the style is located in a separate resource dictionary file
-                // or the application's resource dictionary in App.xaml
-                // Otherwise, the value can be Window or UserControl depending on the where the style is declared.
-                // Therefore, it can be assumed that once root object (if any) is disposed the localized value
-                // can be disposed as well.
-                var rootObject = rootObjectProvider?.RootObject as DependencyObject;
+                Debug.Assert(rootObjectProvider != null);
 
-                if (rootObject == null)
-                {
-                    // There is no way to access the resource manager (apart from the resource manager of the entry assembly).
-                    // In order to avoid misunderstanding and bugs localizing setters is not supported unless they are delcared inside a Window or a UserControl
-                    throw new NotSupportedException("Setters are supported only inside a Window or a UserControl. They are not supported inside a ResourceDictionary file or App.xaml.");
-                }
+                var rootObject = rootObjectProvider.RootObject as DependencyObject;
 
-                var options = new LocalizationOptions()
+                Debug.Assert(rootObject != null);
+
+#if DEPRECATED // Unfortunately "GetDestinationType" throws NullReferenceException therefore, this approach is not applicable for retrieving the property's type
+                var destinationTypeProvider = (IDestinationTypeProvider)serviceProvider.GetService(typeof(IDestinationTypeProvider));
+
+                Debug.Assert(destinationTypeProvider != null);
+
+                var targetPropertyType = destinationTypeProvider.GetDestinationType();
+
+                var localizedValue = new SetterLocalizedValue(rootObject, targetPropertyType)
                 {
-                    Key = Key,
-                    StringFormat = StringFormat,
-                    Binding = Binding,
-                    Bindings = _bindings,
-                    Callback = Callback,
-                    CallbackParameter = CallbackParameter,
-                    Converter = Converter,
-                    ConverterParameter = ConverterParameter,
+                    Key = this.Key,
+                    Callback = this.Callback,
+                    CallbackParameter = this.CallbackParameter,
+                    Converter = this.Converter,
+                    ConverterParameter = this.ConverterParameter,
+                };
+#endif
+
+                var localizedValue = new LocalizedSetterValue(rootObject)
+                {
+                    Key = this.Key,
+                    StringFormat = this.StringFormat,
+                    Callback = this.Callback,
+                    CallbackParameter = this.CallbackParameter,
+                    Binding = this.Binding,
+                    Bindings = this._bindings,
+                    Converter = this.Converter,
+                    ConverterParameter = this.ConverterParameter,
                 };
 
-                var localizedValueTuple = LocalizedSetterValue.Create(rootObject, options);
+                BindingBase finalBinding;
 
-                LocalizationManager.Add(localizedValueTuple.Item1);
+                if (Binding != null || _bindings?.Count > 0)
+                {
+                    var binding = new MultiBinding()
+                    {
+                        Mode = BindingMode.OneWay,
+                        Converter = localizedValue,
+                    };
+                    if (Binding != null)
+                    {
+                        binding.Bindings.Add(Binding);
+                        if (_bindings?.Count > 0)
+                        {
+                            foreach (var item in Bindings)
+                            {
+                                binding.Bindings.Add(item);
+                            }
+                        }
+                    }
+                    finalBinding = binding;
+                }
+                else
+                {
+                    finalBinding = new Binding(nameof(LocalizedSetterValue.Value))
+                    {
+                        Source = localizedValue,
+                        Mode = BindingMode.OneWay,
+                        Converter = localizedValue,
+                    };
+                }
 
-                return localizedValueTuple.Item2.ProvideValue(serviceProvider);
+                LocalizationManager.Add(localizedValue);
+
+                return finalBinding;
             }
             else if (service.TargetProperty is DependencyProperty || service.TargetProperty is PropertyInfo)
             {

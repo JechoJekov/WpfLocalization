@@ -32,6 +32,7 @@ namespace WpfLocalization
         /// <param name="type"></param>
         /// <param name="value"></param>
         /// <returns></returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
         public static object GetValueOrDefaultValue(Type type, object value)
         {
             if (type == null)

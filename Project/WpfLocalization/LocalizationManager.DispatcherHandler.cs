@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -24,12 +25,7 @@ namespace WpfLocalization
             /// <summary>
             /// The list of localized values.
             /// </summary>
-            LinkedList<LocalizedValue> _localizedValueList = new LinkedList<LocalizedValue>();
-
-            /// <summary>
-            /// The list of localized values.
-            /// </summary>
-            LinkedList<SetterLocalizedValue> _setterLocalizedValueList = new LinkedList<SetterLocalizedValue>();
+            LinkedList<LocalizedValueBase> _localizedValueList = new LinkedList<LocalizedValueBase>();
 
             /// <summary>
             /// Dictionary of localized values.
@@ -72,10 +68,10 @@ namespace WpfLocalization
 
                 if (_localizedValueDict.TryGetValue(value.TargetObject, out object oldValue))
                 {
-                    if (oldValue is LinkedListNode<LocalizedValue> oldValueNode)
+                    if (oldValue is LinkedListNode<LocalizedValueBase> oldValueNode)
                     {
                         // A second value of the same DependencyObject has been localized so create a list of values
-                        var valueNodeList = new List<LinkedListNode<LocalizedValue>>()
+                        var valueNodeList = new List<LinkedListNode<LocalizedValueBase>>()
                         {
                             oldValueNode,
                             valueNode
@@ -85,7 +81,7 @@ namespace WpfLocalization
                         _localizedValueDict.Remove(value.TargetObject);
                         _localizedValueDict.Add(value.TargetObject, valueNodeList);
                     }
-                    else if (oldValue is List<LinkedListNode<LocalizedValue>> oldValueNodeList)
+                    else if (oldValue is List<LinkedListNode<LocalizedValueBase>> oldValueNodeList)
                     {
                         oldValueNodeList.Add(valueNode);
                     }
@@ -117,7 +113,7 @@ namespace WpfLocalization
             /// </summary>
             /// <param name="value"></param>
             /// <exception cref="InvalidOperationException">The method is called on a thread different from the <see cref="Dispatcher"/>'s thread.</exception>
-            public void Add(SetterLocalizedValue value)
+            public void Add(LocalizedSetterValue value)
             {
                 if (value == null)
                 {
@@ -126,7 +122,7 @@ namespace WpfLocalization
 
                 Dispatcher.VerifyAccess();
 
-                _setterLocalizedValueList.AddLast(value);
+                _localizedValueList.AddLast(value);
             }
 
             /// <summary>
@@ -135,7 +131,7 @@ namespace WpfLocalization
             /// <param name="targetObject">The owner of the property</param>
             /// <param name="property"></param>
             /// <exception cref="InvalidOperationException">The method is not called on the UI thread of the specified <see cref="DependencyObject"/>.</exception>
-            public void RemoveProperty(DependencyObject targetObject, LocalizedProperty targetProperty)
+            public void RemoveProperty(DependencyObject targetObject, LocalizableProperty targetProperty)
             {
                 if (targetObject == null)
                 {
@@ -150,19 +146,19 @@ namespace WpfLocalization
 
                 if (_localizedValueDict.TryGetValue(targetObject, out object oldValue))
                 {
-                    if (oldValue is LinkedListNode<LocalizedValue> oldValueNode)
+                    if (oldValue is LinkedListNode<LocalizedValueBase> oldValueNode)
                     {
-                        if (oldValueNode.Value.TargetProperty.Equals(targetProperty))
+                        if (((LocalizedValue)oldValueNode.Value).TargetProperty.Equals(targetProperty))
                         {
                             // Remove the previous value from both the dictionary and the list
                             _localizedValueDict.Remove(targetObject);
                             _localizedValueList.Remove(oldValueNode);
                         }
                     }
-                    else if (oldValue is List<LinkedListNode<LocalizedValue>> oldValueNodeList)
+                    else if (oldValue is List<LinkedListNode<LocalizedValueBase>> oldValueNodeList)
                     {
                         // Remove the previous localized value
-                        var oldValueNodeIndex = oldValueNodeList.FindIndex(x => x.Value.TargetProperty.Equals(targetProperty));
+                        var oldValueNodeIndex = oldValueNodeList.FindIndex(x => ((LocalizedValue)x.Value).TargetProperty.Equals(targetProperty));
                         if (oldValueNodeIndex >= 0)
                         {
                             // Remove the previous value from both the dictionary and the list
@@ -223,14 +219,7 @@ namespace WpfLocalization
                 if (_localizedValueList.First != null)
                 {
                     // Schedule the first phase of the refresh operation
-                    // Start with regular values; the "RefreshValues" will automatically continue with setter values
                     _refreshOperation = Dispatcher.BeginInvoke(DispatcherPriority.Background, new SendOrPostCallback(RefreshValues), _localizedValueList.First);
-                }
-                else if (_setterLocalizedValueList.First != null)
-                {
-                    // Schedule the first phase of the refresh operation
-                    // There are no regular values so start with setter values
-                    _refreshOperation = Dispatcher.BeginInvoke(DispatcherPriority.Background, new SendOrPostCallback(RefreshValues), _setterLocalizedValueList.First);
                 }
 
                 // Allow new refresh operations to be scheduled
@@ -243,75 +232,37 @@ namespace WpfLocalization
             /// <remarks>
             /// CAUTION This method must be called on the <see cref="Dispatcher"/>'s thread.
             /// </remarks>
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", MessageId = "System.String.Format(System.String,System.Object[])")]
             [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", MessageId = "System.String.Format(System.String,System.Object)")]
             void RefreshValues(object state)
             {
-                if (state is LinkedListNode<LocalizedValue> localizedValueNode)
-                {
-                    // In order to avoid blocking the UI thread for too long the refresh is split into phases each of which updates at most 1000 values
-                    for (var k = 0; k < 1000 && localizedValueNode != null; k++, localizedValueNode = localizedValueNode.Next)
-                    {
-                        localizedValueNode.Value.UpdateValue();
-                    }
+#if DEBUG
+                int processedValueCount = 0;
+#endif
 
-                    if (localizedValueNode != null)
-                    {
-                        _refreshOperation = Dispatcher.BeginInvoke(DispatcherPriority.Background, new SendOrPostCallback(RefreshValues), localizedValueNode);
-                    }
-                    else if (_setterLocalizedValueList.First != null)
-                    {
-                        // Update setter values
-                        _refreshOperation = Dispatcher.BeginInvoke(DispatcherPriority.Background, new SendOrPostCallback(RefreshValues), _setterLocalizedValueList.First);
-                    }
-                    else
-                    {
-                        _refreshOperation = null;
-                    }
-                }
-                else if (state is LinkedListNode<SetterLocalizedValue> setterLocalizedValueNode)
-                {
-                    // In order to avoid blocking the UI thread for too long the refresh is split into phases each of which updates at most 1000 values
-                    for (var k = 0; k < 1000 && setterLocalizedValueNode != null; k++, setterLocalizedValueNode = setterLocalizedValueNode.Next)
-                    {
-                        setterLocalizedValueNode.Value.UpdateValue();
-                    }
-
-                    if (setterLocalizedValueNode != null)
-                    {
-                        _refreshOperation = Dispatcher.BeginInvoke(DispatcherPriority.Background, new SendOrPostCallback(RefreshValues), setterLocalizedValueNode);
-                    }
-                    else
-                    {
-                        _refreshOperation = null;
-                    }
-                }
-                else
-                {
-                    throw new NotImplementedException($"A localized value of type {state.GetType().FullName} is not handled.");
-                }
-
-#if DEPRECATED
-                var node = (LinkedListNode<LocalizedValueBase>)state;
+                var localizedValueNode = (LinkedListNode<LocalizedValueBase>)state;
 
                 // In order to avoid blocking the UI thread for too long the refresh is split into phases each of which updates at most 1000 values
-                for (var k = 0; k < 1000 && node != null; k++, node = node.Next)
+                for (var k = 0; k < 1000 && localizedValueNode != null; k++, localizedValueNode = localizedValueNode.Next)
                 {
-                    node.Value.UpdateValue();
+#if DEBUG
+                    processedValueCount++;
+#endif
+
+                    localizedValueNode.Value.UpdateValue();
                 }
 
-                if (node != null)
+                if (localizedValueNode != null)
                 {
-                    _refreshOperation = Dispatcher.BeginInvoke(DispatcherPriority.Background, new SendOrPostCallback(RefreshValues), node);
-                }
-                else if (state is LinkedListNode<LocalizedValue> && _setterLocalizedValueList.First != null)
-                {
-                    // Update setter values
-                    _refreshOperation = Dispatcher.BeginInvoke(DispatcherPriority.Background, new SendOrPostCallback(RefreshValues), _setterLocalizedValueList.First);
+                    _refreshOperation = Dispatcher.BeginInvoke(DispatcherPriority.Background, new SendOrPostCallback(RefreshValues), localizedValueNode);
                 }
                 else
                 {
                     _refreshOperation = null;
                 }
+
+#if DEBUG
+                Debug.WriteLine($"[{nameof(RefreshValues)}] Thread: {Dispatcher.Thread.ManagedThreadId} ({Dispatcher.Thread.Name}), Processed: {processedValueCount}");
 #endif
             }
 
@@ -363,6 +314,7 @@ namespace WpfLocalization
             {
                 if (_localizedValueList.First != null)
                 {
+                    // Schedule the first phase of the purge operation
                     PurgeValues(_localizedValueList.First);
                 }
                 else
@@ -379,30 +331,48 @@ namespace WpfLocalization
             /// <remarks>
             /// CAUTION This method must be called on the <see cref="Dispatcher"/>'s thread.
             /// </remarks>
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", MessageId = "System.String.Format(System.String,System.Object[])")]
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", MessageId = "System.String.Format(System.String,System.Object)")]
             void PurgeValues(object state)
             {
-                var node = (LinkedListNode<LocalizedValue>)state;
+#if DEBUG
+                int purgedValueCount = 0;
+                int processedValueCount = 0;
+#endif
 
-                // In order to avoid blocking the UI thread for too long the purge is split into phases each of which inspects at most 1000 values
-                for (var k = 0; k < 1000 && node != null; k++)
+                var localizedValueNode = (LinkedListNode<LocalizedValueBase>)state;
+
+                // In order to avoid blocking the UI thread for too long the purge is split into phases each of which examines at most 1000 values
+                for (var k = 0; k < 1000 && localizedValueNode != null; k++)
                 {
-                    var nextNode = node.Next;
-                    if (false == node.Value.IsAlive)
+#if DEBUG
+                    processedValueCount++;
+#endif
+
+                    var nextNode = localizedValueNode.Next;
+                    if (localizedValueNode.Value.CanPurge())
                     {
-                        node.List.Remove(node);
+                        localizedValueNode.List.Remove(localizedValueNode);
+#if DEBUG
+                        purgedValueCount++;
+#endif
                     }
-                    node = nextNode;
+                    localizedValueNode = nextNode;
                 }
 
-                if (node != null)
+                if (localizedValueNode != null)
                 {
-                    Dispatcher.BeginInvoke(DispatcherPriority.Background, new SendOrPostCallback(PurgeValues), node);
+                    Dispatcher.BeginInvoke(DispatcherPriority.Background, new SendOrPostCallback(PurgeValues), localizedValueNode);
                 }
                 else
                 {
                     // The purge is complete
                     Interlocked.Exchange(ref _purgeInProgress, 0);
                 }
+
+#if DEBUG
+                Debug.WriteLine($"[{nameof(PurgeValues)}] Thread: {Dispatcher.Thread.ManagedThreadId} ({Dispatcher.Thread.Name}), Processed: {processedValueCount}, Purged: {purgedValueCount}");
+#endif
             }
 
             #endregion

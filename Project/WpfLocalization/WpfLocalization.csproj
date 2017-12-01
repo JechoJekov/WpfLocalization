@@ -53,11 +53,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyAttributes.cs" />
-    <Compile Include="Converters\CallbackValueConverter.cs" />
-    <Compile Include="Converters\MultiToSingleValueConverter.cs" />
     <Compile Include="DesignTimeHelper.cs" />
     <Compile Include="GlobalSuppressions.cs" />
-    <Compile Include="LocalizableProperty.cs" />
+    <Compile Include="DependencyObjectProperty.cs" />
     <Compile Include="Converters\BitmapSourceConverter.cs" />
     <Compile Include="Converters\DefaultValueConverter.cs" />
     <Compile Include="Converters\EnhancedImageSourceConverter.cs" />
@@ -68,17 +66,18 @@
     <Compile Include="LocalizationManager.LocalizationManagerCulture.cs" />
     <Compile Include="LocalizationManager.cs" />
     <Compile Include="LocalizationScope.cs" />
-    <Compile Include="LocalizedDepProperty.cs" />
-    <Compile Include="LocalizedNonDepProperty.cs" />
-    <Compile Include="LocalizedProperty.cs" />
+    <Compile Include="LocalizableDepProperty.cs" />
+    <Compile Include="LocalizableNonDepProperty.cs" />
+    <Compile Include="LocalizableProperty.cs" />
+    <Compile Include="LocalizedSetterValue.cs" />
     <Compile Include="LocalizedValue.cs" />
     <Compile Include="LocalizedValueBase.cs" />
+    <Compile Include="LocalizationOptions.cs" />
     <Compile Include="LocalResourceManagerExtension.cs" />
     <Compile Include="LocExtension.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ResourceManagerHelper.cs" />
     <Compile Include="ResourceManagerExtension.cs" />
-    <Compile Include="SetterLocalizedValue.cs" />
     <Compile Include="StringExtensions.cs" />
     <Compile Include="TypeUtils.cs" />
     <Compile Include="WpfUtils.cs" />

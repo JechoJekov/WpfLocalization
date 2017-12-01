@@ -19,7 +19,7 @@ namespace WpfLocalization
     /// <summary>
     /// Represents a localized value.
     /// </summary>
-    class LocalizedValue : LocalizedValueBase, IServiceProvider, IProvideValueTarget
+    class LocalizedValue : LocalizedValueBase, IMultiValueConverter
     {
         #region TargetObject
 
@@ -40,9 +40,12 @@ namespace WpfLocalization
         public override Dispatcher Dispatcher => TargetObject?.Dispatcher;
 
         /// <summary>
-        /// Gets a value indicating if the owner of the property still exists.
+        /// Returns a value indicating if the value can be purged.
         /// </summary>
-        public bool IsAlive => _targetObject.IsAlive;
+        public override bool CanPurge()
+        {
+            return false == _targetObject.IsAlive;
+        }
 
         /// <summary>
         /// Gets a value indicating if the owner of the property is used in design mode.
@@ -65,43 +68,14 @@ namespace WpfLocalization
         /// <summary>
         /// The localized property.
         /// </summary>
-        public LocalizedProperty TargetProperty { get; }
+        public LocalizableProperty TargetProperty { get; }
 
         /// <summary>
-        /// The format string to use in conjunction with <see cref="Binding"/> or <see cref="Bindings"/>.
+        /// The binding created for the value (if any).
         /// </summary>
-        /// <remarks>
-        /// </remarks>
-        public string StringFormat { get; set; }
+        internal BindingExpressionBase BindingExpression { get; private set; }
 
-        #region Binding
-
-        /// <summary>
-        /// The binding to pass as argument to the format string.
-        /// </summary>
-        public BindingBase Binding { get; set; }
-
-        /// <summary>
-        /// The list of binding to pass as arguments to the format string.
-        /// </summary>
-        public Collection<BindingBase> Bindings { get; set; }
-
-        /// <summary>
-        /// The binding used to obtain the value.
-        /// </summary>
-        MultiBinding _finalBinding;
-
-        /// <summary>
-        /// The binding expression used to obtain the value.
-        /// </summary>
-        BindingExpressionBase _finalBindingExpression;
-
-        #endregion
-
-        IValueConverter _finalConverter;
-        object _finalConverterParameter;
-
-        public LocalizedValue(DependencyObject targetObject, LocalizedProperty targetProperty)
+        public LocalizedValue(DependencyObject targetObject, LocalizableProperty targetProperty)
         {
             if (targetObject == null)
             {
@@ -126,271 +100,131 @@ namespace WpfLocalization
                 return;
             }
 
-            GetOrUpdateValue(targetObject, true);
-
-#if DEPRECATED
-            if (targetObject.Dispatcher.CheckAccess())
+            if (BindingExpression != null)
             {
-                GetOrUpdateValue(targetObject, true);
+                BindingExpression.UpdateTarget();
             }
             else
             {
-                targetObject.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new SendOrPostCallback(x => GetOrUpdateValue((DependencyObject)x, true)), targetObject);
+                var value = ProduceValue();
+                TargetProperty.SetValue(targetObject, value);
             }
-#endif
         }
 
         /// <summary>
-        /// Evaluates the value of the property and returns the value.
+        /// Determines the value of the property based on the current culture.
         /// </summary>
-        /// <param name="targetObject"></param>
         /// <returns></returns>
         /// <remarks>
-        /// CAUTION This method must be called on the thread of the <see cref="TargetObject"/>'s <see cref="Dispatcher"/>
+        /// This method is intended to be used by the <see cref="LocExtension"/> type to be able to return
+        /// the value of the property when the extension is evaluated by WPF.
         /// </remarks>
-        internal object GetValue(DependencyObject targetObject)
+        internal object ProduceValue()
         {
+            return ProduceValue(false, null);
+        }
+
+        object ProduceValue(bool dataBound, object dataBoundValueOrValues)
+        {
+            var targetObject = this.TargetObject;
             if (targetObject == null)
             {
-                throw new ArgumentNullException(nameof(targetObject));
+                // The object has been GC
+                return TargetProperty.DefaultValue;
             }
-
-            return GetOrUpdateValue(targetObject, false);
-        }
-
-        /// <summary>
-        /// Evaluates the value of the property, optionally updates the property and returns the value.
-        /// </summary>
-        /// <param name="update">
-        /// <c>true</c> to update the property's value; otherwise, <c>false</c>.
-        /// </param>
-        /// <returns></returns>
-        /// <remarks>
-        /// CAUTION This method must be called on the thread of the <see cref="TargetObject"/>'s <see cref="Dispatcher"/>
-        /// </remarks>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity")]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", MessageId = "System.String.Format(System.String,System.Object)")]
-        object GetOrUpdateValue(DependencyObject targetObject, bool update)
-        {
-            Debug.Assert(targetObject != null);
 
             var dispatcher = targetObject.Dispatcher;
+            var culture = LocalizationScope.GetCulture(targetObject) ?? dispatcher.Thread.CurrentCulture;
+            var uiCulture = LocalizationScope.GetUICulture(targetObject) ?? dispatcher.Thread.CurrentUICulture;
+            var resourceManager = ResourceManagerHelper.GetResourceManager(targetObject);
 
-            var cultureInfo = LocalizationScope.GetCulture(targetObject) ?? dispatcher.Thread.CurrentCulture;
-            var uiCultureInfo = LocalizationScope.GetUICulture(targetObject) ?? dispatcher.Thread.CurrentUICulture;
-
-            #region Converter
-
-            if (_finalConverter == null)
-            {
-                if (Callback != null)
-                {
-                    _finalConverter = new CallbackValueConverter(this);
-#if GOOD_DESIGN_MORE_MEMORY
-                    _finalConverter = new CallbackValueConverter(Callback, Converter, ConverterParameter);
-#endif
-                    _finalConverterParameter = CallbackParameter;
-                }
-                else if (Converter != null)
-                {
-                    _finalConverter = Converter;
-                    _finalConverterParameter = ConverterParameter;
-                }
-            }
-
-            if (_finalConverter is CallbackValueConverter callbackValueConverter)
-            {
-                callbackValueConverter.UICulture = uiCultureInfo;
-            }
-
-            #endregion
-
-            #region Resource value
-
-            object resourceValue;
-
-            if (string.IsNullOrEmpty(Key))
-            {
-                // Only the culture or formatting is localized
-                resourceValue = null;
-            }
-            else
-            {
-                var resourceManager = ResourceManagerHelper.GetResourceManager(targetObject);
-
-                if (resourceManager == null)
-                {
-                    if (TargetProperty.PropertyType.IsAssignableFrom(typeof(string)))
-                    {
-                        if (update)
-                        {
-                            TargetProperty.SetValue(targetObject, ErrorMessage_ResourceManagerNotFound);
-                        }
-                    }
-                    else
-                    {
-                        // Do nothing
-                    }
-
-                    return TypeUtils.GetValueOrDefaultValue(TargetProperty.PropertyType, ErrorMessage_ResourceManagerNotFound);
-                }
-                else
-                {
-                    resourceValue = resourceManager.GetObject(Key, uiCultureInfo);
-                    if (resourceValue == null)
-                    {
-                        var errorMessage = string.Format(ErrorMessage_ResourceKeyNotFound, Key);
-
-                        if (TargetProperty.PropertyType.IsAssignableFrom(typeof(string)))
-                        {
-                            if (update)
-                            {
-                                TargetProperty.SetValue(targetObject, errorMessage);
-                            }
-                        }
-                        else
-                        {
-                            // Do nothing
-                        }
-
-                        return TypeUtils.GetValueOrDefaultValue(TargetProperty.PropertyType, errorMessage);
-                    }
-                }
-            }
-
-            #endregion
-
-            #region Binding
-
-            if (Binding != null || Bindings?.Count > 0)
-            {
-                // Use the binding to obtain the value and then use the resource value or format string to format it
-
-                var stringFormat = (resourceValue as string).NullIfEmpty() ?? StringFormat.NullIfEmpty() ?? "{0}";
-
-                // A binding cannot be changed once "BindingBase.ProvideValue" is invoked therefore, it must be recreated if the
-                // formatting string or the culture has changed
-                if (_finalBinding == null || _finalBinding.StringFormat != stringFormat || _finalBinding.ConverterCulture != cultureInfo)
-                {
-                    Debug.Assert(TargetProperty is LocalizedDepProperty, "Bindings are supported only on dependency properties.");
-
-                    // Prepare the binding
-                    var finalBinding = new MultiBinding()
-                    {
-                        Mode = BindingMode.OneWay,
-                        StringFormat = stringFormat,
-                        Converter = _finalConverter == null ? null : new MultiToSingleValueConverter(_finalConverter),
-                        ConverterParameter = _finalConverterParameter,
-                        ConverterCulture = cultureInfo,
-                    };
-
-                    if (Binding != null)
-                    {
-                        finalBinding.Bindings.Add(Binding);
-                    }
-                    else
-                    {
-                        foreach (var item in Bindings)
-                        {
-                            finalBinding.Bindings.Add(item);
-                        }
-                    }
-
-                    this._finalBinding = finalBinding;
-                    this._finalBindingExpression = (BindingExpressionBase)_finalBinding.ProvideValue(this);
-
-                    if (update)
-                    {
-                        // Set the value
-                        TargetProperty.SetValue(targetObject, _finalBindingExpression);
-                    }
-                }
-                else
-                {
-                    if (update)
-                    {
-                        _finalBindingExpression.UpdateTarget();
-                    }
-                }
-
-                return _finalBindingExpression;
-            }
-            #endregion
-            else
-            {
-                object targetValue;
-
-                if (_finalConverter != null)
-                {
-                    targetValue = _finalConverter.Convert(resourceValue, TargetProperty.PropertyType, _finalConverterParameter, cultureInfo);
-                }
-                else if (false == TargetProperty.PropertyType.IsAssignableFrom(resourceValue.GetType()))
-                {
-                    // Use an appropriate converter
-                    targetValue = DefaultValueConverter.Instance.Convert(resourceValue, TargetProperty.PropertyType, null, cultureInfo);
-                }
-                else
-                {
-                    targetValue = resourceValue;
-                }
-
-                if (update)
-                {
-                    TargetProperty.SetValue(targetObject, targetValue);
-                }
-
-                return targetValue;
-            }
+            return base.ProduceValue(
+                TargetProperty,
+                TargetProperty.PropertyType,
+                resourceManager,
+                culture,
+                uiCulture,
+                dataBound,
+                dataBoundValueOrValues
+                );
         }
 
-        #region IServiceProvider Members
+        #region IValueConverter & IMultiValueConverter
 
-        /// <summary>
-        /// Gets the service object of the specified type.
-        /// </summary>
-        /// <param name="serviceType">An object that specifies the type of service object to get.</param>
-        /// <returns>
-        /// A service object of type <paramref name="serviceType"/>.
-        /// -or-
-        /// null if there is no service object of type <paramref name="serviceType"/>.
-        /// </returns>
-        object IServiceProvider.GetService(Type serviceType)
+        object IMultiValueConverter.Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            if (serviceType == typeof(IProvideValueTarget))
-            {
-                return this;
-            }
-            else
-            {
-                return null;
-            }
+            return ProduceValue(true, values);
+        }
+
+        object[] IMultiValueConverter.ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        {
+            throw new NotSupportedException();
         }
 
         #endregion
 
-        #region IProvideValueTarget Members
+        #region Static methods
 
         /// <summary>
-        /// Gets the target object being reported.
+        /// Creates a new localized value.
         /// </summary>
-        /// <value></value>
-        /// <returns>
-        /// The target object being reported.
-        /// </returns>
-        object IProvideValueTarget.TargetObject
+        /// <param name="targetObject"></param>
+        /// <param name="targetProperty"></param>
+        /// <param name="binding"></param>
+        /// <param name="bindings"></param>
+        /// <returns></returns>
+        public static LocalizedValue Create(
+            DependencyObjectProperty objectProperty,
+            LocalizationOptions options
+            )
         {
-            get
+            if (options == null)
             {
-                return TargetObject;
+                throw new ArgumentNullException(nameof(options));
             }
-        }
 
-        object IProvideValueTarget.TargetProperty
-        {
-            get
+            var localizedValue = new LocalizedValue(objectProperty.TargetObject, objectProperty.TargetProperty)
             {
-                return ((LocalizedDepProperty)TargetProperty).Property;
+                Key = options.Key,
+                StringFormat = options.StringFormat,
+                Callback = options.Callback,
+                CallbackParameter = options.CallbackParameter,
+                Converter = options.Converter,
+                ConverterParameter = options.ConverterParameter,
+            };
+
+            if (options.Binding != null || options.Bindings?.Count > 0)
+            {
+                if (false == (objectProperty.TargetProperty.PropertyObject is DependencyProperty))
+                {
+                    // The what bindings are implemented in WPF provides no way to obtain the value
+                    // produced by the binging. The only way is to update the property directly. Therefore,
+                    // the extension cannot support bindings on non-dependency properties (same as WPF).
+                    throw new ArgumentException("Bindings are supported only on dependency properties.", nameof(options));
+                }
+
+                // Create a binding
+                var localizedBinding = new MultiBinding()
+                {
+                    Mode = BindingMode.OneWay,
+                };
+                if (options.Binding != null)
+                {
+                    localizedBinding.Bindings.Add(options.Binding);
+                }
+                if (options.Bindings?.Count > 0)
+                {
+                    foreach (var item in options.Bindings)
+                    {
+                        localizedBinding.Bindings.Add(item);
+                    }
+                }
+
+                localizedBinding.Converter = localizedValue;
+                localizedValue.BindingExpression = (BindingExpressionBase)localizedBinding.ProvideValue(objectProperty);
             }
+
+            return localizedValue;
         }
 
         #endregion

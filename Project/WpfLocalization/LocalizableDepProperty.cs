@@ -7,14 +7,19 @@ using System.Windows;
 namespace WpfLocalization
 {
     /// <summary>
-    /// Represents localized dependency property.
+    /// Represents a dependency property that can be localized.
     /// </summary>
-    class LocalizedDepProperty : LocalizedProperty
+    class LocalizableDepProperty : LocalizableProperty
     {
         /// <summary>
         /// Gets the type of the property's value.
         /// </summary>
         public override Type PropertyType => Property.PropertyType;
+
+        /// <summary>
+        /// The object that represents the property (e.g. <see cref="DependencyProperty"/> or <see cref="PropertyInfo"/>).
+        /// </summary>
+        protected internal override object PropertyObject => Property;
 
         /// <summary>
         /// The property.
@@ -26,7 +31,7 @@ namespace WpfLocalization
         /// </summary>
         public override object DefaultValue => Property.DefaultMetadata.DefaultValue;
 
-        public LocalizedDepProperty(DependencyProperty property)
+        public LocalizableDepProperty(DependencyProperty property)
         {
             this.Property = property ?? throw new ArgumentNullException(nameof(property));
         }
@@ -43,7 +48,7 @@ namespace WpfLocalization
 
         public override bool Equals(object obj)
         {
-            return obj is LocalizedDepProperty other && other.Property == this.Property;
+            return obj is LocalizableDepProperty other && other.Property == this.Property;
         }
 
         public override int GetHashCode()

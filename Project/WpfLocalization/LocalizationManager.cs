@@ -542,7 +542,7 @@ namespace WpfLocalization
         /// <exception cref="InvalidOperationException">The method is not called on the UI thread of <see cref="LocalizedValueBase.TargetObject"/>.</exception>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA2204:Literals should be spelled correctly", MessageId = "DependencyObject")]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", MessageId = "System.String.Format(System.String,System.Object)")]
-        internal static void Add(SetterLocalizedValue value)
+        internal static void Add(LocalizedSetterValue value)
         {
             if (value == null)
             {
@@ -574,7 +574,7 @@ namespace WpfLocalization
         /// <exception cref="InvalidOperationException">The method is not called on the UI thread of the specified <see cref="DependencyObject"/>.</exception>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA2204:Literals should be spelled correctly", MessageId = "DependencyObject")]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", MessageId = "System.String.Format(System.String,System.Object)")]
-        internal static void RemoveProperty(DependencyObject targetObject, LocalizedProperty targetProperty)
+        internal static void RemoveProperty(DependencyObject targetObject, LocalizableProperty targetProperty)
         {
             if (targetObject == null)
             {

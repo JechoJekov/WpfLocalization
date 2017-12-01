@@ -18,13 +18,13 @@ namespace WpfLocalization
         #region Property
 
         /// <summary>
-        /// Returns an object that can be used to localize the specified property of the specified <see cref="DependencyObject"/>.
+        /// Returns an object that can be used to localize the specified objectProperty of the specified <see cref="DependencyObject"/>.
         /// </summary>
-        /// <param name="obj">The owner of the property.</param>
-        /// <param name="dependencyProperty">The property to localize.</param>
+        /// <param name="obj">The owner of the objectProperty.</param>
+        /// <param name="dependencyProperty">The objectProperty to localize.</param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"><paramref name="obj"/> or <paramref name="dependencyProperty"/> or null.</exception>
-        public static LocalizableProperty Property(this DependencyObject obj, DependencyProperty dependencyProperty)
+        public static DependencyObjectProperty Property(this DependencyObject obj, DependencyProperty dependencyProperty)
         {
             if (obj == null)
             {
@@ -35,17 +35,17 @@ namespace WpfLocalization
                 throw new ArgumentNullException(nameof(dependencyProperty));
             }
 
-            return new LocalizableProperty(obj, new LocalizedDepProperty(dependencyProperty));
+            return new DependencyObjectProperty(obj, new LocalizableDepProperty(dependencyProperty));
         }
 
         /// <summary>
-        /// Returns an object that can be used to localize the specified property of the specified <see cref="DependencyObject"/>.
+        /// Returns an object that can be used to localize the specified objectProperty of the specified <see cref="DependencyObject"/>.
         /// </summary>
-        /// <param name="obj">The owner of the property.</param>
-        /// <param name="propertyInfo">The property to localize.</param>
+        /// <param name="obj">The owner of the objectProperty.</param>
+        /// <param name="propertyInfo">The objectProperty to localize.</param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"><paramref name="obj"/> or <paramref name="propertyInfo"/> or null.</exception>
-        public static LocalizableProperty Property(this DependencyObject obj, PropertyInfo propertyInfo)
+        public static DependencyObjectProperty Property(this DependencyObject obj, PropertyInfo propertyInfo)
         {
             if (obj == null)
             {
@@ -56,20 +56,20 @@ namespace WpfLocalization
                 throw new ArgumentNullException(nameof(propertyInfo));
             }
 
-            return new LocalizableProperty(obj, new LocalizedNonDepProperty(propertyInfo));
+            return new DependencyObjectProperty(obj, new LocalizableNonDepProperty(propertyInfo));
         }
 
         /// <summary>
-        /// Returns an object that can be used to localize the specified property of the specified <see cref="DependencyObject"/>.
+        /// Returns an object that can be used to localize the specified objectProperty of the specified <see cref="DependencyObject"/>.
         /// </summary>
-        /// <param name="obj">The owner of the property.</param>
-        /// <param name="propertyName">The name of the property to localize.</param>
+        /// <param name="obj">The owner of the objectProperty.</param>
+        /// <param name="propertyName">The name of the objectProperty to localize.</param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"><paramref name="obj"/> is null or <see cref="propertyName"/> or null or empty.</exception>
         /// <exception cref="ArgumentOutOfRangeException">
-        /// A dependency or a non-dependency property named <paramref name="propertyName"/> was not found.
+        /// A dependency or a non-dependency objectProperty named <paramref name="propertyName"/> was not found.
         /// </exception>
-        public static LocalizableProperty Property(this DependencyObject obj, string propertyName)
+        public static DependencyObjectProperty Property(this DependencyObject obj, string propertyName)
         {
             if (obj == null)
             {
@@ -82,11 +82,11 @@ namespace WpfLocalization
 
             if (DependencyPropertyDescriptor.FromName(propertyName, obj.GetType(), obj.GetType()) is DependencyPropertyDescriptor depProperty)
             {
-                return new LocalizableProperty(obj, new LocalizedDepProperty(depProperty.DependencyProperty));
+                return new DependencyObjectProperty(obj, new LocalizableDepProperty(depProperty.DependencyProperty));
             }
             else if (obj.GetType().GetProperty(propertyName) is PropertyInfo propertyInfo)
             {
-                return new LocalizableProperty(obj, new LocalizedNonDepProperty(propertyInfo));
+                return new DependencyObjectProperty(obj, new LocalizableNonDepProperty(propertyInfo));
             }
             else
             {
@@ -99,180 +99,163 @@ namespace WpfLocalization
         #region Set value
 
         /// <summary>
-        /// Localizes the specified property with a resource value.
+        /// Localizes the specified objectProperty.
         /// </summary>
-        /// <param name="property"></param>
-        /// <param name="key"></param>
-        public static void Resource(this LocalizableProperty property, string key)
+        /// <param name="objectProperty">The objectProperty to localize.</param>
+        /// <param name="options">The options describing how the objectProperty is to be localized.</param>
+        /// <exception cref="ArgumentException">A binding is specified and the objectProperty is a non-dependency objectProperty.</exception>
+        public static void Localize(this DependencyObjectProperty objectProperty, LocalizationOptions options)
         {
-            var localizedValue = new LocalizedValue(property.TargetObject, property.TargetProperty)
-            {
-                Key = key,
-            };
+            var localizedValue = LocalizedValue.Create(objectProperty, options);
 
             LocalizationManager.Add(localizedValue);
-        }
 
-        /// <summary>
-        /// Localizes the specified property with a formatting resource string and bindings.
-        /// </summary>
-        /// <param name="property"></param>
-        /// <param name="key"></param>
-        /// <param name="bindings"></param>
-        public static void ResourceFormat(this LocalizableProperty property, string key, params BindingBase[] bindings)
-        {
-            ResourceFormat(property, key, (IList<BindingBase>)bindings);
-        }
-
-        /// <summary>
-        /// Localizes the specified property with a formatting resource string and bindings.
-        /// </summary>
-        /// <param name="property"></param>
-        /// <param name="key"></param>
-        /// <param name="bindings"></param>
-        public static void ResourceFormat(this LocalizableProperty property, string key, IList<BindingBase> bindings)
-        {
-            if (bindings == null || bindings.Count == 0)
+            // Set the value initially
+            if (localizedValue.BindingExpression != null)
             {
-                Resource(property, key);
+                // The value uses bindings
+                localizedValue.TargetProperty.SetValue(localizedValue.TargetObject, localizedValue.BindingExpression);
             }
             else
             {
-                var localizedValue = new LocalizedValue(property.TargetObject, property.TargetProperty)
-                {
-                    Key = key,
-                };
-
-                if (bindings.Count == 1)
-                {
-                    localizedValue.Binding = bindings[0];
-                }
-                else
-                {
-                    localizedValue.Bindings = new Collection<BindingBase>(bindings);
-                }
-
-                LocalizationManager.Add(localizedValue);
+                // The value does not use bindings
+                localizedValue.TargetProperty.SetValue(localizedValue.TargetObject, localizedValue.ProduceValue());
             }
+        }
+
+        #region Resource
+
+        /// <summary>
+        /// Localizes the specified objectProperty with a resource value.
+        /// </summary>
+        /// <param name="objectProperty"></param>
+        /// <param name="key"></param>
+        public static void Resource(this DependencyObjectProperty objectProperty, string key)
+        {
+            Resource(objectProperty, key, null);
         }
 
         /// <summary>
-        /// Localizes the specified property with a formatting string and bindings.
+        /// Localizes the specified objectProperty with a resource value.
         /// </summary>
-        /// <param name="property"></param>
-        /// <param name="stringFormat"></param>
-        /// <param name="bindings"></param>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1720:IdentifiersShouldNotContainTypeNames", MessageId = "string")]
-        public static void Format(this LocalizableProperty property, string stringFormat, params BindingBase[] bindings)
+        /// <param name="objectProperty"></param>
+        /// <param name="key"></param>
+        public static void Resource(this DependencyObjectProperty objectProperty, string key, IValueConverter converter)
         {
-            Format(property, stringFormat, (IList<BindingBase>)bindings);
+            Localize(objectProperty, new LocalizationOptions() { Key = key, Converter = converter, });
         }
 
-        /// <summary>
-        /// Localizes the specified property with a formatting string and bindings.
-        /// </summary>
-        /// <param name="property"></param>
-        /// <param name="stringFormat"></param>
-        /// <param name="bindings"></param>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1720:IdentifiersShouldNotContainTypeNames", MessageId = "string")]
-        public static void Format(this LocalizableProperty property, string stringFormat, IList<BindingBase> bindings)
-        {
-            var localizedValue = new LocalizedValue(property.TargetObject, property.TargetProperty)
-            {
-                StringFormat = stringFormat,
-            };
-
-            if (bindings == null || bindings.Count == 0)
-            {
-                // Do nothing
-            }
-            else if (bindings.Count == 1)
-            {
-                localizedValue.Binding = bindings[0];
-            }
-            else
-            {
-                localizedValue.Bindings = new Collection<BindingBase>(bindings);
-            }
-
-            LocalizationManager.Add(localizedValue);
-        }
+        #endregion
 
         #region Callback
 
         /// <summary>
-        /// Localizes the specified property by using a callback to obtain a localized value.
+        /// Localizes the specified objectProperty by using the specified callback to obtain a localized value.
         /// </summary>
-        /// <param name="property"></param>
-        /// <param name="callbackParameter"></param>
+        /// <param name="objectProperty"></param>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1719:ParameterNamesShouldNotMatchMemberNames", MessageId = "1#")]
-        public static void Callback(this LocalizableProperty property, LocalizationCallback callback, object callbackParameter)
+        public static void Callback(this DependencyObjectProperty objectProperty, LocalizationCallback callback)
         {
-            var localizedValue = new LocalizedValue(property.TargetObject, property.TargetProperty)
-            {
-                Callback = callback,
-                CallbackParameter = callbackParameter,
-            };
-
-            LocalizationManager.Add(localizedValue);
+            CallbackOptions(objectProperty, callback);
         }
 
         /// <summary>
-        /// Localizes the specified property by using a callback to obtain a localized value.
+        /// Localizes the specified objectProperty by using the specified callback to obtain a value and then formats the value using the specified
+        /// string.
         /// </summary>
-        /// <param name="property"></param>
+        /// <param name="objectProperty"></param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1720:IdentifiersShouldNotContainTypeNames", MessageId = "string")]
+        public static void CallbackFormat(this DependencyObjectProperty objectProperty, LocalizationCallback callback, string stringFormat)
+        {
+            CallbackOptions(objectProperty, callback, stringFormat: stringFormat);
+        }
+
+        /// <summary>
+        /// Localizes the specified objectProperty by using the specified callback to obtain a value and then formats the value using the specified
+        /// string resource.
+        /// </summary>
+        /// <param name="objectProperty"></param>
+        public static void CallbackResourceFormat(this DependencyObjectProperty objectProperty, LocalizationCallback callback, string resourceKey)
+        {
+            CallbackOptions(objectProperty, callback, resourceKey: resourceKey);
+        }
+
+        static void CallbackOptions(this DependencyObjectProperty objectProperty, LocalizationCallback callback, string stringFormat = null, string resourceKey = null)
+        {
+            Localize(objectProperty, new LocalizationOptions() { Callback = callback, StringFormat = stringFormat, Key = resourceKey });
+        }
+
+        #endregion
+
+        #region Binding
+
+        /// <summary>
+        /// Localizes the specified objectProperty by using the specified binding to obtain a value and then formats the value using the specified
+        /// string.
+        /// </summary>
+        /// <param name="objectProperty"></param>
         /// <param name="callbackParameter"></param>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1720:IdentifiersShouldNotContainTypeNames", MessageId = "string")]
-        public static void CallbackFormat(this LocalizableProperty property, LocalizationCallback callback, object callbackParameter, string stringFormat)
+        public static void BindingFormat(this DependencyObjectProperty objectProperty, BindingBase binding, string stringFormat)
         {
-            CallbackFormat(property, callback, callbackParameter, stringFormat, null);
+            BindingOptions(objectProperty, binding, null, stringFormat: stringFormat);
         }
 
         /// <summary>
-        /// Localizes the specified property by using a callback to obtain a localized value.
+        /// Localizes the specified objectProperty by using the specified binding to obtain a value and then formats the value using the specified
+        /// string resource.
         /// </summary>
-        /// <param name="property"></param>
-        /// <param name="callbackParameter"></param>
+        /// <param name="objectProperty"></param>
+        public static void BindingResourceFormat(this DependencyObjectProperty objectProperty, BindingBase binding, string resourceKey)
+        {
+            BindingOptions(objectProperty, binding, null, resourceKey: resourceKey);
+        }
+
+        /// <summary>
+        /// Localizes the specified objectProperty by using the specified binding to obtain a value and then formats the value using the specified
+        /// string.
+        /// </summary>
+        /// <param name="objectProperty"></param>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1720:IdentifiersShouldNotContainTypeNames", MessageId = "string")]
-        public static void CallbackFormat(this LocalizableProperty property, LocalizationCallback callback, object callbackParameter, string stringFormat, BindingBase binding)
+        public static void BindingFormat(this DependencyObjectProperty objectProperty, ICollection<BindingBase> bindings, string stringFormat)
         {
-            var localizedValue = new LocalizedValue(property.TargetObject, property.TargetProperty)
-            {
-                StringFormat = stringFormat,
-                Binding = binding,
-                Callback = callback,
-                CallbackParameter = callbackParameter,
-            };
-
-            LocalizationManager.Add(localizedValue);
+            BindingOptions(objectProperty, null, bindings, stringFormat: stringFormat);
         }
 
         /// <summary>
-        /// Localizes the specified property by using a callback to obtain a localized value.
+        /// Localizes the specified objectProperty by using the specified binding to obtain a value and then formats the value using the specified
+        /// string resource.
         /// </summary>
-        /// <param name="property"></param>
-        /// <param name="callbackParameter"></param>
-        public static void CallbackResourceFormat(this LocalizableProperty property, LocalizationCallback callback, object callbackParameter, string resourceKey)
+        /// <param name="objectProperty"></param>
+        public static void BindingResourceFormat(this DependencyObjectProperty objectProperty, ICollection<BindingBase> bindings, string resourceKey)
         {
-            CallbackResourceFormat(property, callback, callbackParameter, resourceKey, null);
+            BindingOptions(objectProperty, null, bindings, resourceKey: resourceKey);
         }
 
         /// <summary>
-        /// Localizes the specified property by using a callback to obtain a localized value.
+        /// Localizes the specified objectProperty by using the specified binding to obtain a value and then formats the value using the specified
+        /// string.
         /// </summary>
-        /// <param name="property"></param>
-        /// <param name="callbackParameter"></param>
-        public static void CallbackResourceFormat(this LocalizableProperty property, LocalizationCallback callback, object callbackParameter, string resourceKey, BindingBase binding)
+        /// <param name="objectProperty"></param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1720:IdentifiersShouldNotContainTypeNames", MessageId = "string")]
+        public static void BindingFormat(this DependencyObjectProperty objectProperty, string stringFormat, params BindingBase[] bindings)
         {
-            var localizedValue = new LocalizedValue(property.TargetObject, property.TargetProperty)
-            {
-                Key = resourceKey,
-                Binding = binding,
-                Callback = callback,
-                CallbackParameter = callbackParameter,
-            };
+            BindingOptions(objectProperty, null, bindings, stringFormat: stringFormat);
+        }
 
-            LocalizationManager.Add(localizedValue);
+        /// <summary>
+        /// Localizes the specified objectProperty by using the specified binding to obtain a value and then formats the value using the specified
+        /// string resource.
+        /// </summary>
+        /// <param name="objectProperty"></param>
+        public static void BindingResourceFormat(this DependencyObjectProperty objectProperty, string resourceKey, params BindingBase[] bindings)
+        {
+            BindingOptions(objectProperty, null, bindings, resourceKey: resourceKey);
+        }
+
+        static void BindingOptions(this DependencyObjectProperty objectProperty, BindingBase binding, ICollection<BindingBase> bindings, string stringFormat = null, string resourceKey = null)
+        {
+            Localize(objectProperty, new LocalizationOptions() { Binding = binding, Bindings = bindings, StringFormat = stringFormat, Key = resourceKey });
         }
 
         #endregion
@@ -282,17 +265,17 @@ namespace WpfLocalization
         #region Remove
 
         /// <summary>
-        /// Removes the localization from the specified property.
+        /// Removes the localization from the specified objectProperty.
         /// </summary>
-        /// <param name="property"></param>
+        /// <param name="objectProperty"></param>
         /// <remarks>
         /// This method stops localizing the specified value (the value will no longer be updated
         /// when the culture changes). However, this method does not remove the value that is already set. If there
-        /// was a localized binding and the some of the data bound values change the property will still be updated.
+        /// was a localized binding and the some of the data bound values change the objectProperty will still be updated.
         /// </remarks>
-        public static void Remove(this LocalizableProperty property)
+        public static void Remove(this DependencyObjectProperty objectProperty)
         {
-            LocalizationManager.RemoveProperty(property.TargetObject, property.TargetProperty);
+            LocalizationManager.RemoveProperty(objectProperty.TargetObject, objectProperty.TargetProperty);
         }
 
         #endregion
@@ -331,7 +314,7 @@ namespace WpfLocalization
             }
             else
             {
-                return resourceManager.GetString(resourceKey, uiCultureInfo) ?? resourceManager.GetObject(resourceKey, uiCultureInfo);
+                return resourceManager.GetObject(resourceKey, uiCultureInfo);
             }
         }
 
